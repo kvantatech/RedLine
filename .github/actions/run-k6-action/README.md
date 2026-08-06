@@ -1,6 +1,6 @@
 # run-k6-action — the deterministic perf gate
 
-**Delivery surface #2** (planning repo `agent/DELIVERY-MODEL.md` §8):
+**Delivery surface #2**:
 a composite GitHub Action a team drops into its own CI. **Zero model calls** — run →
 `--summary-export` → `compare-core.js` → exit code.
 

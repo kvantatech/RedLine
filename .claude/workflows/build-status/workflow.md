@@ -3,8 +3,8 @@
 **Type:** UTIL (utility, deterministic) / **Trigger:** manual `/build-status` (or after any `status.json` edit) / **Status: STUB (P0 scaffold)**
 
 Regenerates the human-facing views from the machine-readable single source of truth. The
-`status.json` SSOT was designed to live in the planning repo — which was never created —
-so this renderer stays a stub and its two views are hand-maintained today:
+`status.json` SSOT does not exist yet, so this renderer stays a stub and its two
+views are hand-maintained today:
 `STATUS.md` (repo root; the `<!-- AUTOGEN:status -->` region is kept in renderer shape) and
 the interactive `docs/redline-architecture.html`. When build-status is implemented, point
 it at a local `status.json` and let it own the AUTOGEN region + regenerate the diagram.
@@ -31,5 +31,4 @@ unchanged `status.json` is a no-op diff.
 
 ---
 
-Skills referenced live in `.github/skills/`. Full design: planning repo `agent/WORKFLOWS.md` —
-`AGENTS.md` in this repo
+Skills referenced live in `.github/skills/`. Full design: `AGENTS.md` in this repo

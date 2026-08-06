@@ -49,5 +49,4 @@ else is [DET]. Human gates: scope review (step 4a) + PR merge (step 7).
 
 ---
 
-Skills referenced live in `.github/skills/`. Full design: planning repo
-`AGENTS.md` in this repo
+Skills referenced live in `.github/skills/`. Full design: `AGENTS.md` in this repo

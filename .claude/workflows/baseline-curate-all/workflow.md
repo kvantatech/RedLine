@@ -48,5 +48,4 @@ the drift/`error_rate_red` gates, and `run-ledger` are all deterministic (pure c
 
 ---
 
-Skills referenced live in `.github/skills/`. Full design: planning repo `agent/WORKFLOWS.md` —
-`AGENTS.md` in this repo
+Skills referenced live in `.github/skills/`. Full design: `AGENTS.md` in this repo

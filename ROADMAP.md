@@ -1,6 +1,14 @@
 # Roadmap
 
-Decisions and planned work for RedLine as a product. Dated; newest first.
+## What's next (summary)
+
+- **Wire the CI gate for real** — `perf-gate-demo-web.yml` needs repo secrets + a staging-reachable runner (P2 remainder).
+- **`script-author` live via `k6 x agent`** (P4) — the prerequisite for `mass-onboarding`.
+- **`curate-baselines` PR path + weekly cron + GitHub MCP** (P5) — closes the full SDLC loop.
+- **First live-fire of the alert senders** — PagerDuty / OpsGenie / MS Teams are dry-run-tested; a real key in `.env` is all that's missing.
+- **Deferred by decision:** remote-dispatch control plane (paid tier, only if real users ask); runtime vision models (see 2026-07-27 below).
+
+Decisions and planned work, dated; newest first.
 
 ## 2026-07-27 — Midscene gap analysis: runtime-AI stays out; DOM-less exception noted, deferred
 

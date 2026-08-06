@@ -3,12 +3,8 @@
 The current-state view of the build. Human-facing companion to the interactive
 architecture diagram (`docs/redline-architecture.html`). Last updated **2026-07-27**.
 
-> **How this file is maintained today.** The `build-status` workflow that would
-> regenerate this from a `status.json` SSOT is a P0 **stub** — and the planning repo
-> the SSOT was meant to live in was never created. So for now this file is
-> hand-maintained. The `<!-- AUTOGEN:status -->` region below is written by hand but
-> kept in the shape a renderer would own, so `build-status` can take it over later
-> without a reformat.
+> Hand-maintained for now; the `build-status` workflow will regenerate the
+> `<!-- AUTOGEN:status -->` region from a `status.json` SSOT in a later phase.
 
 ## Positioning (settled 2026-07-16)
 
@@ -35,12 +31,11 @@ read-side multi-cluster only. See `ROADMAP.md`.
 | Thing | Count |
 |---|---|
 | Workflows | 9 |
-| Skills | 37 |
+| Skills | 36 (.github/skills) + 5 vendored k6 helpers (.claude/skills) |
 | Subagents (model calls) | 3 |
 | MCP servers (phase-of-need) | 6 |
-| Teams defined | 8 (demo-web, demo-api, saucedemo-team, redline-dashboard, quickpizza-team, saucedemo-team, + crm/new-test scaffolds) |
+| Teams defined | 5 (demo-web, demo-api, quickpizza-team, saucedemo-team, redline-dashboard) |
 | Baselines seeded | 5 (demo-web api-benchmark + browser-journey, demo-api api-benchmark, quickpizza-team api-benchmark, saucedemo-team browser-journey) |
-| AI agent license | ACTIVE |
 
 **Invariants:** two verdicts only (green \| red) · deploy gate = 0 model calls · only 3
 model calls exist · 10 iterations minimum · filing is human-gated · STG-only (1-VU PROD

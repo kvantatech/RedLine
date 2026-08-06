@@ -1,6 +1,6 @@
 # Architecture — the file-tree pattern
 
-> **P0 scaffold.** This repo follows the team agent-design standard (`~/.claude/AGENTS.md`): *an agent is not built inside a framework — it **is** a file tree*, walked by one general coding agent (Claude Code). Full rationale and the 32-ticket Epic: the **planning repo** → `AGENTS.md` in this repo (`agent/WORKFLOWS.md` is the live v2 design).
+> This repo follows the file-tree agent pattern: *an agent is not built inside a framework — it **is** a file tree*, walked by one general coding agent (Claude Code). Full rationale: this file plus `docs/redline-architecture.html` (interactive diagram); per-change specs and plans live under `docs/superpowers/`.
 
 ## The five building blocks
 
@@ -14,7 +14,7 @@ WORKFLOWS  →  SKILLS  →  SUBAGENTS  →  MCP  →  DATA
 | **Skill** | `.github/skills/<name>/SKILL.md` | One job: Prompt (instructions) + Tools (MCPs) + Data (files it reads/writes). Independently testable, no model judgment. |
 | **Subagent** | `.github/agents/<name>.agent.md` | A skill that **earned** a model call — justified only by (a) open-ended judgment or (b) large-context isolation. Only **3** qualify. |
 | **MCP** | `.claude/settings.json` | Outside data/tools, registered **phase-of-need** (k6 + Playwright P0 · Grafana P2 · Jira + Slack P3 · GitHub P5). |
-| **Data** | `baselines/ state/ envs/ reports/ logs/` | Baselines, the idempotency ledger, read-only submodules, transient artifacts. |
+| **Data** | `baselines/ state/ envs/ reports/ logs/` | Baselines, the idempotency ledger, the proven tier (read-only), transient artifacts. |
 
 **Burden-of-proof rule:** a fixed deterministic path is the default; a model call must be justified in writing.
 

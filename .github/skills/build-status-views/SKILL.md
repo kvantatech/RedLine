@@ -12,7 +12,7 @@ All totals/rollups are COMPUTED by the renderer at build time — never stored b
 none — deterministic (plain code)
 
 ## Data
-- Reads: `status.json` (SSOT — planned to live in the planning repo, which was never created; a local `status.json` is the sensible home if/when this is implemented)
+- Reads: `status.json` (SSOT — does not exist yet; a local `status.json` is the sensible home if/when this is implemented)
 - Writes: `STATUS.md` (between AUTOGEN markers only) and `docs/redline-architecture.html`
 - Until then both views are hand-maintained (STATUS.md at repo root; the diagram in `docs/`)
 

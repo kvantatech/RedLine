@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="300" viewBox="0 0 1280 300" role="img" aria-label="RedLine — the QA agent you clone, not a platform you install">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0d10"/>
+      <stop offset="1" stop-color="#14181d"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e5484d" stop-opacity="0"/>
+      <stop offset="0.12" stop-color="#e5484d" stop-opacity="1"/>
+      <stop offset="0.88" stop-color="#e5484d" stop-opacity="1"/>
+      <stop offset="1" stop-color="#e5484d" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="300" fill="url(#bg)"/>
+
+  <!-- subtle metric grid -->
+  <g stroke="#2a3038" stroke-width="1" opacity="0.35">
+    <line x1="0" y1="75"  x2="1280" y2="75"/>
+    <line x1="0" y1="225" x2="1280" y2="225"/>
+  </g>
+
+  <!-- p95 latency trace: green under the line, spiking red past it -->
+  <polyline points="820,196 860,188 900,192 940,178 980,184 1020,168 1060,176 1100,138 1140,96 1180,118 1220,72"
+            fill="none" stroke="#3fb950" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="1100" cy="138" r="5" fill="#e5484d"/>
+  <circle cx="1140" cy="96"  r="5" fill="#e5484d"/>
+  <circle cx="1220" cy="72"  r="5" fill="#e5484d"/>
+
+  <!-- THE red line -->
+  <rect x="0" y="148" width="1280" height="5" fill="url(#fade)"/>
+
+  <!-- wordmark -->
+  <text x="64" y="172" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="104" font-weight="800" letter-spacing="-3" fill="#f0f3f6">Red<tspan fill="#e5484d">Line</tspan></text>
+
+  <!-- tagline -->
+  <text x="66" y="224" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="25" font-weight="500" letter-spacing="0.5" fill="#9ba3ad">The QA agent you clone, not a platform you install.</text>
+
+  <!-- gate stamp -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="600">
+    <rect x="66" y="248" width="318" height="30" rx="15" fill="none" stroke="#3fb950" opacity="0.8"/>
+    <text x="84" y="268" fill="#3fb950">deploy gate: 0 model calls</text>
+  </g>
+</svg>

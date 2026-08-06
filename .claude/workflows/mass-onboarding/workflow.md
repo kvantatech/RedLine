@@ -50,5 +50,4 @@ The fan-out harness itself adds **0** model calls — steps 1, 2, 4, 5, 6 are al
 
 ---
 
-Skills referenced live in `.github/skills/`. Full design: planning repo
-`AGENTS.md` in this repo
+Skills referenced live in `.github/skills/`. Full design: `AGENTS.md` in this repo
