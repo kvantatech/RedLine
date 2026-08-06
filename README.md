@@ -2,7 +2,7 @@
 
 <img src="docs/assets/redline-banner.svg" alt="RedLine — the QA agent you clone, not a platform you install" width="100%"/>
 
-**Performance + functional testing with a red/green baseline per test — and a deploy gate that never calls a model.**
+**Describe what to test in plain language — AI writes the k6 and Playwright scripts. A deterministic, model-free gate blocks the regressions.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3fb950.svg)](LICENSE)
 [![Node ≥ 20](https://img.shields.io/badge/node-%E2%89%A5%2020-3fb950?logo=nodedotjs&logoColor=white)](https://nodejs.org)
@@ -17,12 +17,13 @@
 
 ## What is RedLine?
 
-RedLine is a QA agent you `git clone`, not a platform you install. It authors and runs **performance tests (k6)** and **functional tests (Playwright)** for your app, holds a **red/green baseline** for every test, and **blocks deploys that cross the red line**. No Kubernetes, no operator, no server to maintain — it runs on a laptop or one CI runner, and the dashboard is a single zero-dependency Node file.
+RedLine is a QA agent you `git clone`, not a platform you install. **Its AI subagents write the tests; its deterministic core runs them.** Tell it what to test in plain language and it authors the **k6 (performance)** or **Playwright (functional)** script, benchmarks it, and sets a **red/green baseline** — then **blocks any deploy that crosses the red line**. No Kubernetes, no operator, no server to maintain: it runs on a laptop or one CI runner, and the dashboard is a single zero-dependency Node file.
 
 AI does the expensive thinking — authoring scripts, healing broken locators, narrating regressions. The things that must never be creative — **the merge gate, the verdict, the ledger — are plain deterministic code with exit codes**.
 
 ## Why RedLine?
 
+- ✍️ **AI writes the tests — you don't.** Describe the API or user journey in plain language; the agent authors the k6 / Playwright script, verifies it against your live app in a self-healing fix loop, and presents the scope for your approval. No k6 or Playwright expertise required.
 - ⚡ **Zero infrastructure.** `git clone` + `node dashboard/server.mjs`. No cluster, no database, no `npm install` for the dashboard. Results from CI in other repos can still merge into one view ([tools/README.md](tools/README.md)).
 - 🚦 **AI authors, determinism gates.** The deploy gate ([`run-k6-action`](.github/actions/run-k6-action/)) makes **zero model calls**: run → compare to baseline → exit `0` (green) or `99` (red). Your CI never waits on — or pays for — an LLM.
 - 🔁 **A red must reproduce before anyone is paged.** Every red is corroborated by a re-run; flakes are recorded, not escalated. Filing to Jira/Slack is always behind a human click.
