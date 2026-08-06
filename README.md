@@ -55,13 +55,13 @@ npm test
 
 ```mermaid
 flowchart LR
-    A["RUN<br/>k6 / Playwright"] --> B{"COMPARE<br/>vs red/green baseline"}
-    B -->|green| L["ledger ✓"]
-    B -->|red| C["CORROBORATE<br/>re-run must reproduce"]
-    C -->|"doesn't reproduce"| F["recorded as flake"]
-    C -->|confirmed red| D["TRIAGE<br/>Jira draft (1 AI line)"]
-    D --> E["REVIEWER subagent<br/>independent sign-off"]
-    E --> H["HUMAN<br/>files ticket / alerts team"]
+    A["RUN: k6 / Playwright"] --> B{"COMPARE vs baseline"}
+    B -->|green| L["ledger: logged"]
+    B -->|red| C["CORROBORATE: re-run must reproduce"]
+    C -->|no repro| F["recorded as flake"]
+    C -->|confirmed red| D["TRIAGE: Jira draft, 1 AI line"]
+    D --> E["REVIEWER: independent sign-off"]
+    E --> H["HUMAN: files ticket / alerts team"]
 ```
 
 The same loop gates deploys: in enforce mode the composite Action exits `99` on a confirmed red and the merge/canary stops — **deterministically, with no model in the path**.
