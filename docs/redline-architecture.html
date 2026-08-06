@@ -1,0 +1,426 @@
+<title>RedLine — architecture at a glance</title>
+<style>
+  :root {
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+
+    /* light — "canvas": warm paper */
+    --ground: #f4efe3;
+    --panel: #fffdf8;
+    --panel-2: #f8f2e5;
+    --line: #e2d9c5;
+    --line-2: #d3c6ac;
+    --ink: #2a241a;
+    --muted: #6d6452;
+    --faint: #9a9079;
+    --brass: #a97d27;
+    --brass-bright: #c9993c;
+    --brass-dim: rgba(169,125,39,0.12);
+    --green: #2f8a55;
+    --green-soft: rgba(47,138,85,0.14);
+    --red: #c34637;
+    --red-soft: rgba(195,70,55,0.13);
+    --shadow: 0 1px 2px rgba(40,32,15,0.06), 0 8px 24px rgba(40,32,15,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #16130e;
+      --panel: #201b14;
+      --panel-2: #29231a;
+      --line: #38301f;
+      --line-2: #4a3f28;
+      --ink: #ece3d0;
+      --muted: #a89c83;
+      --faint: #6f6551;
+      --brass: #cba15b;
+      --brass-bright: #e7c67e;
+      --brass-dim: rgba(203,161,91,0.14);
+      --green: #5cbb7d;
+      --green-soft: rgba(92,187,125,0.15);
+      --red: #e0665a;
+      --red-soft: rgba(224,102,90,0.16);
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #16130e; --panel: #201b14; --panel-2: #29231a; --line: #38301f; --line-2: #4a3f28;
+    --ink: #ece3d0; --muted: #a89c83; --faint: #6f6551;
+    --brass: #cba15b; --brass-bright: #e7c67e; --brass-dim: rgba(203,161,91,0.14);
+    --green: #5cbb7d; --green-soft: rgba(92,187,125,0.15); --red: #e0665a; --red-soft: rgba(224,102,90,0.16);
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 30px rgba(0,0,0,0.45);
+  }
+  :root[data-theme="light"] {
+    --ground: #f4efe3; --panel: #fffdf8; --panel-2: #f8f2e5; --line: #e2d9c5; --line-2: #d3c6ac;
+    --ink: #2a241a; --muted: #6d6452; --faint: #9a9079;
+    --brass: #a97d27; --brass-bright: #c9993c; --brass-dim: rgba(169,125,39,0.12);
+    --green: #2f8a55; --green-soft: rgba(47,138,85,0.14); --red: #c34637; --red-soft: rgba(195,70,55,0.13);
+    --shadow: 0 1px 2px rgba(40,32,15,0.06), 0 8px 24px rgba(40,32,15,0.08);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: var(--sans); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 22px 56px; }
+
+  /* header */
+  .top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px 28px; justify-content: space-between; }
+  .brand { display: flex; flex-direction: column; gap: 6px; }
+  .redline-mark { display: flex; align-items: baseline; gap: 10px; }
+  h1 {
+    font-family: var(--mono); font-size: clamp(26px, 4vw, 38px); margin: 0;
+    letter-spacing: -0.02em; font-weight: 650; color: var(--ink); text-wrap: balance;
+  }
+  h1 .dot { color: var(--red); }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass); }
+  .lede { max-width: 60ch; color: var(--muted); font-size: 15px; margin: 2px 0 0; }
+
+  .headright { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+  .gauge { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .gauge svg { display: block; }
+  .gauge .glab { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.04em; color: var(--faint); }
+  .gauge .glab b { color: var(--green); font-weight: 600; }
+  .gauge .glab i { color: var(--red); font-style: normal; font-weight: 600; }
+
+  .themebtn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+    background: var(--panel); color: var(--muted); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer; transition: color .15s, border-color .15s;
+  }
+  .themebtn:hover { color: var(--ink); border-color: var(--line-2); }
+
+  /* doctrine chips */
+  .doctrine { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 4px; }
+  .chip {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+    padding: 5px 11px; border-radius: 6px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted); white-space: nowrap;
+  }
+  .chip .g { color: var(--green); font-weight: 600; }
+  .chip .r { color: var(--red); font-weight: 600; }
+  .chip .b { color: var(--brass); font-weight: 600; }
+
+  /* controls */
+  .controls { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; flex-wrap: wrap; }
+  .tracebtn {
+    font-family: var(--sans); font-size: 13.5px; font-weight: 550;
+    background: var(--brass); color: #1a1408; border: 1px solid transparent;
+    border-radius: 8px; padding: 9px 16px; cursor: pointer; transition: filter .15s, background .2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  :root[data-theme="light"] .tracebtn { color: #fffdf8; }
+  @media (prefers-color-scheme: light) { .tracebtn { color: #fffdf8; } }
+  :root[data-theme="dark"] .tracebtn { color: #1a1408; }
+  @media (prefers-color-scheme: dark) { .tracebtn { color: #1a1408; } }
+  .tracebtn:hover { filter: brightness(1.06); }
+  .tracebtn[aria-pressed="true"] { background: var(--red); }
+  .tracebtn .ic { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .hint { font-size: 13px; color: var(--faint); }
+
+  /* board */
+  .board { position: relative; margin-top: 6px; }
+  .wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: visible; }
+  .stage { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 14px; }
+
+  .band { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 14px 16px; box-shadow: var(--shadow); }
+  .band::before {
+    content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px;
+    background: var(--rail, var(--brass)); opacity: .8;
+  }
+  .bandhead { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px 10px; flex-wrap: wrap; }
+  .blabel { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: var(--ink); }
+  .brole { font-size: 12px; color: var(--faint); }
+  .bnum { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .nodes { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 10px; }
+
+  .node {
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink);
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 8px 11px; cursor: pointer; text-align: left; position: relative;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform .12s ease, border-color .15s, background .15s, box-shadow .15s;
+  }
+  .node:hover { transform: translateY(-1px); border-color: var(--brass); background: var(--panel); }
+  .node:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 2px; }
+  .node .ntag { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 5px; border-radius: 4px; color: var(--brass); background: var(--brass-dim); }
+  .node[data-kind="core"] { border-color: var(--line-2); }
+  .node[data-kind="core"] .ntag { color: var(--green); background: var(--green-soft); }
+  .node[data-kind="model"] { border-color: var(--brass); background: linear-gradient(var(--panel-2), var(--panel-2)) padding-box, linear-gradient(120deg, var(--brass), var(--brass-bright)) border-box; border: 1px solid transparent; }
+  .node[data-kind="model"] .ntag { color: var(--brass-bright); background: var(--brass-dim); }
+  .node[data-kind="group"] { color: var(--muted); border-style: dashed; }
+  .node[data-kind="human"] .ntag { color: var(--red); background: var(--red-soft); }
+
+  .stepno {
+    position: absolute; top: -9px; left: -9px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--red); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 700;
+    display: none; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  }
+  :root[data-theme="light"] .stepno { color: #fffdf8; }
+
+  /* trace mode dimming */
+  .board.tracing .node { opacity: .28; }
+  .board.tracing .node.on { opacity: 1; }
+  .board.tracing .node.on .stepno { display: flex; }
+  .board.tracing .node.on[data-kind="model"] { box-shadow: 0 0 0 3px var(--brass-dim); }
+
+  /* detail panel */
+  .detail {
+    position: fixed; top: 0; right: 0; height: 100%; width: min(400px, 92vw);
+    background: var(--panel); border-left: 1px solid var(--line-2);
+    box-shadow: -12px 0 40px rgba(0,0,0,0.18); z-index: 20;
+    transform: translateX(100%); transition: transform .24s ease; padding: 26px 24px; overflow-y: auto;
+  }
+  .detail.open { transform: translateX(0); }
+  .detail .close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--faint); font-size: 22px; cursor: pointer; line-height: 1; }
+  .detail .close:hover { color: var(--ink); }
+  .detail .dlayer { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+  .detail h2 { font-family: var(--mono); font-size: 19px; margin: 6px 0 4px; letter-spacing: -0.01em; word-break: break-word; }
+  .detail .dpath { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-bottom: 16px; word-break: break-all; }
+  .detail p { font-size: 14.5px; color: var(--ink); margin: 0 0 14px; }
+  .detail .dmeta { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 4px; }
+  .detail .dmeta .row { display: flex; gap: 10px; font-size: 13px; margin-bottom: 9px; }
+  .detail .dmeta .k { font-family: var(--mono); font-size: 11px; color: var(--faint); min-width: 62px; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 1px; }
+  .detail .dmeta .v { color: var(--muted); }
+  .backdrop { position: fixed; inset: 0; background: rgba(10,8,4,0.34); z-index: 15; opacity: 0; pointer-events: none; transition: opacity .24s; }
+  .backdrop.on { opacity: 1; pointer-events: auto; }
+
+  footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--faint); display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: var(--mono); }
+  footer b { color: var(--muted); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 640px) {
+    .wrap { padding: 20px 14px 44px; }
+    .headright { align-items: flex-start; }
+    .bnum { display: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <span class="kicker">QA engineering agent · a file tree, not a framework</span>
+      <div class="redline-mark">
+        <h1>Red<span class="dot">L</span>ine</h1>
+      </div>
+      <p class="lede">One general coding agent walks a tree of deterministic <b>skills</b>, composed into a few <b>workflows</b>, calling a model only where it's earned. This is the short version — every load-bearing piece, none of the noise.</p>
+    </div>
+    <div class="headright">
+      <button class="themebtn" id="theme" type="button">◑ theme</button>
+      <div class="gauge" aria-hidden="true">
+        <svg width="228" height="26" viewBox="0 0 228 26">
+          <rect x="1" y="9" width="158" height="9" rx="4.5" fill="var(--green)"></rect>
+          <rect x="159" y="9" width="68" height="9" rx="4.5" fill="var(--red)"></rect>
+          <line x1="159" y1="4" x2="159" y2="23" stroke="var(--ink)" stroke-width="1.5"></line>
+          <circle cx="132" cy="13.5" r="5" fill="var(--panel)" stroke="var(--ink)" stroke-width="1.6"></circle>
+        </svg>
+        <span class="glab">p95 ≤ the red line → <b>green</b> · over it → <i>red</i></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="doctrine">
+    <span class="chip">two verdicts: <span class="g">green</span> | <span class="r">red</span></span>
+    <span class="chip">deploy gate = <span class="b">0</span> model calls</span>
+    <span class="chip">only <span class="b">3</span> model calls exist</span>
+    <span class="chip">10 iterations minimum</span>
+    <span class="chip">filing is <span class="r">human-gated</span></span>
+    <span class="chip">STG-only (1-VU PROD carve-out)</span>
+  </div>
+
+  <div class="controls">
+    <button class="tracebtn" id="trace" type="button" aria-pressed="false"><span class="ic"></span>Trace a run</button>
+    <span class="hint">Follow one performance test through the loop — run → judge → confirm → review → record. Click any box for what it does.</span>
+  </div>
+
+  <div class="board" id="board">
+    <svg class="wires" id="wires"><defs>
+      <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--red)"></path>
+      </marker>
+    </defs></svg>
+    <div class="stage" id="stage"></div>
+  </div>
+
+  <footer>
+    <span><b>9</b> workflows</span>
+    <span><b>37</b> skills</span>
+    <span><b>3</b> subagents</span>
+    <span><b>6</b> MCP servers (phase-of-need)</span>
+    <span>github.com/kvantatech/RedLine</span>
+  </footer>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="detail" id="detail" aria-live="polite">
+  <button class="close" id="close" type="button" aria-label="Close">×</button>
+  <span class="dlayer" id="d-layer"></span>
+  <h2 id="d-name"></h2>
+  <div class="dpath" id="d-path"></div>
+  <p id="d-desc"></p>
+  <div class="dmeta" id="d-meta"></div>
+</aside>
+
+<script>
+const L = [
+  { id:"dashboard", name:"Dashboard", role:"the only thing a human touches", rail:"var(--brass)", nodes:[
+    { id:"dashboard", label:"dashboard/", kind:"", path:"dashboard/server.mjs + public/",
+      desc:"A zero-dependency Node server plus a plain-HTML UI — no build step, no npm install. A tech lead onboards a new test, runs one, watches the verdict, and sets schedules here, all in plain language. It spawns the agent headlessly and reads the ledger.",
+      meta:{ Surfaces:"Wizard · Run test · Executions · Insights · Schedules", Reads:"state/run-ledger.jsonl", Spawns:"Claude Code via claude -p" } },
+  ]},
+  { id:"workflows", name:"Workflows", role:"deterministic recipes · the control flow", rail:"var(--brass-bright)", nodes:[
+    { id:"perf-run-one", label:"perf-run-one", kind:"core", path:".claude/workflows/perf-run-one/",
+      desc:"The operational loop for one performance test: run it, judge it against the red line, confirm a red with a re-run, draft a ticket, get an independent review, and record it. It hard-stops before filing — nothing irreversible happens on its own.",
+      meta:{ Shape:"RUN → COMPARE → CORROBORATE → TRIAGE → REVIEW → LEDGER", "Model calls":"2 (triage + reviewer)" } },
+    { id:"perf-author", label:"perf-author", kind:"core", path:".claude/workflows/perf-author/",
+      desc:"Creates a brand-new k6 test for a team from plain-language answers, pauses for a human scope-review, verifies it runs green, then graduates it from the draft tier to the proven tier.",
+      meta:{ Shape:"EXPLORE → AUTHOR → SCOPE-REVIEW[human] → VERIFY → DELIVER", "Model calls":"1 (script-author)" } },
+    { id:"func-run-one", label:"func-run-one", kind:"", path:".claude/workflows/func-run-one/", desc:"The functional twin of perf-run-one — runs a Playwright suite, maps it to green/red on pass-fail, corroborates reds, and drafts a reviewed ticket.", meta:{ Suite:"Playwright" } },
+    { id:"func-author", label:"func-author", kind:"", path:".claude/workflows/func-author/", desc:"Authors a new Playwright functional suite from a live-explored flow, with the same human scope-review gate as perf-author.", meta:{ Suite:"Playwright" } },
+    { id:"perf-sweep", label:"perf-sweep", kind:"", path:".claude/workflows/perf-sweep/", desc:"Fans the run loop across many team × profile × env combinations in one cost-capped pass, ending at one cited report.", meta:{ "Fan-out":"teams × profiles × envs" } },
+    { id:"mass-onboarding", label:"mass-onboarding", kind:"", path:".claude/workflows/mass-onboarding/", desc:"Fans perf-author across every team you've defined, authoring a starter test for each in a single pass.", meta:{} },
+    { id:"baseline-curate-all", label:"baseline-curate-all", kind:"", path:".claude/workflows/baseline-curate-all/", desc:"Reviews observed p95 history and proposes red-line adjustments as draft PRs — never auto-merges a threshold change.", meta:{} },
+    { id:"prod-stg-parity-check", label:"prod-stg-parity-check", kind:"", path:".claude/workflows/prod-stg-parity-check/", desc:"Set-diffs staging against prod, finds tests that exist on one but not the other, and authors the gap.", meta:{} },
+    { id:"build-status", label:"build-status", kind:"", path:".claude/workflows/build-status/", desc:"Assembles the status and insight views the dashboard reads.", meta:{} },
+  ]},
+  { id:"skills", name:"Skills", role:"one job each · no judgment, no model call", rail:"var(--green)", nodes:[
+    { id:"run-k6-script", label:"run-k6-script", kind:"core", path:".github/skills/run-k6-script/", desc:"Executes one k6 test (HTTP or browser), scrubs secrets out of the HAR, and returns an exit-code contract. 1 VU, 10 iterations — a single sample gives no meaningful p95.", meta:{ Writes:"reports/<run_id>/" } },
+    { id:"parse-k6-json-summary", label:"parse-k6-json-summary", kind:"core", path:".github/skills/parse-k6-json-summary/", desc:"Turns k6's raw JSON summary into the one canonical contract shape everything downstream reads.", meta:{ Out:"contract.json" } },
+    { id:"compare-core", label:"compare-core", kind:"core", path:".github/skills/compare-core/", desc:"The single verdict function: p95 vs the red line. At or under → green, over → red. The exact same code runs in the agent loop and in the zero-model CI gate, so the two can never disagree.", meta:{ Rule:"p95 ≤ p95_red_ms ? green : red", "Shared with":"run-k6-action gate" } },
+    { id:"corroborate-2-sources", label:"corroborate-2-sources", kind:"core", path:".github/skills/corroborate-2-sources/", desc:"A red triggers exactly one confirmation re-run. Both red → sources: 2 → escalate. Re-run comes back green → it was a flake, and nobody gets paged.", meta:{ "Anti-flake":"1 re-run, not chased" } },
+    { id:"triage-perf-verdict", label:"triage-perf-verdict", kind:"core", path:".github/skills/triage-perf-verdict/", desc:"Writes the Jira draft for a red — one AI-narrated sentence on top of a deterministic template. A draft, never a filing.", meta:{ Out:"jira-draft.md" } },
+    { id:"run-ledger", label:"run-ledger", kind:"core", path:".github/skills/run-ledger/", desc:"Appends the run to state/run-ledger.jsonl — the single source of truth — and is also the idempotency de-dupe gate so a deploy isn't judged twice.", meta:{ Writes:"state/run-ledger.jsonl" } },
+    { id:"link-grafana-panel", label:"link-grafana-panel", kind:"", path:".github/skills/link-grafana-panel/", desc:"Builds a deep link to the exact Grafana panel and run window for the ticket. Pure string construction — no API, no token.", meta:{} },
+    { id:"notify-responsible-team", label:"notify-responsible-team", kind:"", path:".github/skills/notify-responsible-team/", desc:"Fans the alert out to Slack, MS Teams, PagerDuty, or OpsGenie — whichever channels a team has configured. Secrets come from env, never from config.", meta:{ Channels:"slack · msteams · pagerduty · opsgenie" } },
+    { id:"file-perf-regression-jira", label:"file-perf-regression-jira", kind:"human", path:".github/skills/file-perf-regression-jira/", desc:"Files the ticket — but only after a reviewer sign-off AND an explicit human click in the dashboard. Never automatic, never fired by a workflow.", meta:{ Gate:"reviewer SIGN_OFF + sources ≥ 2 + human approval" } },
+    { id:"grp-k6", label:"k6 profiles ×5", kind:"group", path:".github/skills/k6-profile-*/", desc:"The executor presets: benchmark · load · stress · spike · soak. Each fixes the VU/iteration/stage shape for one kind of test.", meta:{ Members:"benchmark, load, stress, spike, soak" } },
+    { id:"grp-func", label:"functional ×6", kind:"group", path:".github/skills/*playwright* + func-*", desc:"The Playwright half: run-playwright-suite · parse-playwright-summary · func-verdict · verify-playwright-suite · heal-playwright-suite (production test-rot repair, graduation-gated) · triage-func-verdict — the same run/parse/judge/verify shape as the k6 side.", meta:{} },
+    { id:"grp-support", label:"support ×17", kind:"group", path:".github/skills/", desc:"Everything else a run leans on: authoring helpers, baseline curation, HAR secret scrubbing, doc-consistency checks, token-cost estimation, execution-mode choice, draft-PR opening, and more.", meta:{} },
+  ]},
+  { id:"subagents", name:"Subagents", role:"the ONLY model calls — each justified in writing", rail:"var(--brass-bright)", nodes:[
+    { id:"reviewer", label:"reviewer", kind:"model", path:".github/agents/reviewer.agent.md", desc:"An independent model in its own fresh context that must sign off before anything is filed. Dual-pass and anti-anchoring, and it needs ≥2 corroborating sources. This is the one model call inside the run loop.", meta:{ Earns:"open-ended judgment", Gate:"blocks all filing" } },
+    { id:"script-author", label:"script-author", kind:"model", path:".github/agents/script-author.agent.md", desc:"Large-context generation of a new k6 script. Earns a model call on the large-context-isolation rule, not on judgment.", meta:{ Earns:"large-context generation" } },
+    { id:"spec-author", label:"spec-author", kind:"model", path:".github/agents/spec-author.agent.md", desc:"Large-context generation of a new Playwright functional suite — the functional twin of script-author.", meta:{ Earns:"large-context generation" } },
+  ]},
+  { id:"mcp", name:"MCP tools", role:"registered only when their phase needs them", rail:"var(--muted)", nodes:[
+    { id:"mcp-k6", label:"k6", kind:"", path:"k6 x mcp", desc:"Runs and validates k6 scripts and serves the k6 docs — the anti-hallucination spine for any k6 guidance.", meta:{ Phase:"P0" } },
+    { id:"mcp-pw", label:"playwright", kind:"", path:"@playwright/mcp", desc:"Browser automation for live exploration, and a token-efficient authoring/healing server for building resilient locators.", meta:{ Phase:"P0" } },
+    { id:"mcp-grafana", label:"grafana", kind:"", path:"mcp-grafana", desc:"Optional reviewer context enrichment. The deep-link skill needs no token; only this enrichment does.", meta:{ Phase:"P2" } },
+    { id:"mcp-jira", label:"jira", kind:"", path:"jira mcp", desc:"Files the reviewed, human-approved regression ticket. Reachable only in the file-gated path.", meta:{ Phase:"P3" } },
+    { id:"mcp-slack", label:"slack", kind:"", path:"incoming webhook", desc:"Posts the alert to #perf-alerts via a permanent incoming webhook.", meta:{ Phase:"P3" } },
+    { id:"mcp-github", label:"github", kind:"", path:"github mcp", desc:"Opens the draft PRs for new scripts and baseline bumps in the full SDLC loop.", meta:{ Phase:"P5" } },
+  ]},
+  { id:"data", name:"Data", role:"the state everything reads and writes", rail:"var(--red)", nodes:[
+    { id:"baselines", label:"baselines/", kind:"", path:"baselines/<team>.<profile>.json", desc:"The red line per team + profile — a single p95_red_ms threshold. This is what green/red is measured against.", meta:{ Shape:"green/red only — no amber" } },
+    { id:"ledger", label:"run-ledger.jsonl", kind:"core", path:"state/run-ledger.jsonl", desc:"Every run, ever — the single source of truth the dashboard, the de-dupe gate, and the verdict views all read. Append-only JSONL, schema v1.", meta:{ Role:"SSOT + idempotency key" } },
+    { id:"envs", label:"envs/", kind:"", path:"envs/<team>/<profile>/", desc:"The proven tier — scripts land here only by graduating from workbench/ after they run green. Written via graduation, never hand-edited in place.", meta:{ Rule:"write only via perf-author graduation" } },
+    { id:"reports", label:"reports/ · logs/", kind:"group", path:"reports/ · logs/", desc:"Transient per-run artifacts — the k6 summary, the contract, the Jira draft, milestone logs. Gitignored.", meta:{ State:"transient, gitignored" } },
+  ]},
+];
+
+const TRACE = ["run-k6-script","parse-k6-json-summary","compare-core","corroborate-2-sources","triage-perf-verdict","reviewer","run-ledger","file-perf-regression-jira"];
+
+const stage = document.getElementById("stage");
+const byId = {};
+for (const layer of L) {
+  const band = document.createElement("section");
+  band.className = "band"; band.style.setProperty("--rail", layer.rail);
+  const head = document.createElement("div"); head.className = "bandhead";
+  head.innerHTML = `<span class="blabel">${layer.name}</span><span class="brole">${layer.role}</span><span class="bnum">${layer.nodes.length}</span>`;
+  band.appendChild(head);
+  const nodes = document.createElement("div"); nodes.className = "nodes";
+  for (const n of layer.nodes) {
+    byId[n.id] = { ...n, layer: layer.name };
+    const b = document.createElement("button");
+    b.className = "node"; b.type = "button"; b.dataset.node = n.id; if (n.kind) b.dataset.kind = n.kind;
+    const tag = n.kind === "model" ? "model" : n.kind === "core" ? "core" : n.kind === "human" ? "human-gated" : n.kind === "group" ? "group" : "";
+    b.innerHTML = `<span class="stepno"></span><span class="nname">${n.label}</span>${tag ? `<span class="ntag">${tag}</span>` : ""}`;
+    b.addEventListener("click", () => openDetail(n.id));
+    nodes.appendChild(b);
+  }
+  band.appendChild(nodes);
+  stage.appendChild(band);
+}
+
+/* detail panel */
+const detail = document.getElementById("detail");
+const backdrop = document.getElementById("backdrop");
+function openDetail(id) {
+  const n = byId[id]; if (!n) return;
+  document.getElementById("d-layer").textContent = n.layer;
+  document.getElementById("d-name").textContent = n.label;
+  document.getElementById("d-path").textContent = n.path || "";
+  document.getElementById("d-desc").textContent = n.desc || "";
+  const meta = document.getElementById("d-meta"); meta.innerHTML = "";
+  for (const [k, v] of Object.entries(n.meta || {})) {
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = `<span class="k">${k}</span><span class="v">${v}</span>`;
+    meta.appendChild(row);
+  }
+  detail.classList.add("open"); backdrop.classList.add("on");
+}
+function closeDetail() { detail.classList.remove("open"); backdrop.classList.remove("on"); }
+document.getElementById("close").addEventListener("click", closeDetail);
+backdrop.addEventListener("click", closeDetail);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDetail(); });
+
+/* theme toggle */
+document.getElementById("theme").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const isDark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+});
+
+/* trace */
+const board = document.getElementById("board");
+const wires = document.getElementById("wires");
+const traceBtn = document.getElementById("trace");
+let tracing = false;
+
+function centerOf(id) {
+  const el = stage.querySelector(`[data-node="${id}"]`);
+  if (!el) return null;
+  const r = el.getBoundingClientRect(), s = board.getBoundingClientRect();
+  return { x: r.left - s.left + r.width / 2, y: r.top - s.top + r.height / 2 };
+}
+function drawWires() {
+  const s = board.getBoundingClientRect();
+  wires.setAttribute("viewBox", `0 0 ${s.width} ${s.height}`);
+  wires.querySelectorAll("path.link").forEach((p) => p.remove());
+  if (!tracing) return;
+  for (let i = 0; i < TRACE.length - 1; i++) {
+    const a = centerOf(TRACE[i]), b = centerOf(TRACE[i + 1]);
+    if (!a || !b) continue;
+    const dy = (b.y - a.y) * 0.45 || 26;
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("class", "link");
+    p.setAttribute("d", `M ${a.x} ${a.y} C ${a.x} ${a.y + dy}, ${b.x} ${b.y - dy}, ${b.x} ${b.y}`);
+    p.setAttribute("fill", "none");
+    p.setAttribute("stroke", "var(--red)");
+    p.setAttribute("stroke-width", "2");
+    p.setAttribute("opacity", "0.75");
+    p.setAttribute("marker-end", "url(#arrow)");
+    wires.appendChild(p);
+  }
+}
+function setTrace(on) {
+  tracing = on;
+  board.classList.toggle("tracing", on);
+  traceBtn.setAttribute("aria-pressed", String(on));
+  traceBtn.querySelector(".ic")?.remove();
+  const ic = document.createElement("span"); ic.className = "ic"; traceBtn.prepend(ic);
+  traceBtn.childNodes[traceBtn.childNodes.length - 1].textContent = on ? "Tracing perf-run-one" : "Trace a run";
+  stage.querySelectorAll(".node").forEach((el) => { el.classList.remove("on"); el.querySelector(".stepno").textContent = ""; });
+  if (on) {
+    TRACE.forEach((id, i) => {
+      const el = stage.querySelector(`[data-node="${id}"]`);
+      if (el) { el.classList.add("on"); el.querySelector(".stepno").textContent = i + 1; }
+    });
+  }
+  drawWires();
+}
+traceBtn.addEventListener("click", () => setTrace(!tracing));
+new ResizeObserver(drawWires).observe(stage);
+addEventListener("resize", drawWires);
+</script>

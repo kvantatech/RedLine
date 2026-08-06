@@ -1,0 +1,28 @@
+{
+  "team": "quickpizza-team",
+  "env": "stg",
+  "profile": "api-benchmark",
+  "updated": "2026-07-19",
+  "source": "10-iteration real run 2026-07-19 (authoring smoke, workbench verify) — config p95=95ms, pizza p95=136ms, 10/10 iterations, exit 0; threshold = max(1000, p95*1.2) = 1000ms both (API floor rule)",
+  "endpoints": [
+    {
+      "name": "GET /api/config",
+      "metric": "quickpizza_config_health",
+      "note": "App bootstrap signal — first meaningful response, public endpoint",
+      "p95_red_ms": 1000,
+      "error_rate_red": 0.02
+    },
+    {
+      "name": "POST /api/pizza",
+      "metric": "quickpizza_pizza_order",
+      "note": "Core business transaction — pizza recommendation with public demo token",
+      "p95_red_ms": 1000,
+      "error_rate_red": 0.02
+    }
+  ],
+  "arch": {
+    "type": "Grafana QuickPizza demo service (public k6 practice target)",
+    "auth": "public demo token 'abcdef0123456789' on POST /api/pizza — documented, not a secret",
+    "target_url": "https://quickpizza.grafana.com"
+  }
+}

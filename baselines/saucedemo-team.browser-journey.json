@@ -1,0 +1,40 @@
+{
+  "team": "saucedemo-team",
+  "profile": "browser-journey",
+  "env": "stg",
+  "script": "saucedemo-team/browser-journey/script.js",
+  "captured": "2026-07-19",
+  "note": "Thresholds use browser seeding rule: max(floor, observed_p95 * 1.2). error_rate_red 0.15 tolerates 1 flaky iteration in 10. Observed values from the k6 --summary-export of the real 10-iteration verify run 2026-07-19 (export authoritative over handleSummary).",
+  "metrics": {
+    "saucedemo_browser_login_ms": {
+      "p95_red_ms": 3000,
+      "error_rate_red": 0.15,
+      "note": "goto / + credential submit → inventory list visible. Real 10-iter p95=1025ms → max(3000, 1230)=3000 (floor)",
+      "_seeding": "10-iter observed=1025ms; max(3000, 1230)=3000 (floor)"
+    },
+    "saucedemo_browser_addcart_ms": {
+      "p95_red_ms": 1500,
+      "error_rate_red": 0.15,
+      "note": "Add-to-cart click → badge visible. Real 10-iter p95=370ms → max(1500, 444)=1500 (floor)",
+      "_seeding": "10-iter observed=370ms; max(1500, 444)=1500 (floor)"
+    },
+    "saucedemo_browser_cart_ms": {
+      "p95_red_ms": 1500,
+      "error_rate_red": 0.15,
+      "note": "Cart link click → cart item visible. Real 10-iter p95=267ms → max(1500, 320)=1500 (floor)",
+      "_seeding": "10-iter observed=267ms; max(1500, 320)=1500 (floor)"
+    },
+    "browser_web_vital_fcp": {
+      "p95_red_ms": 1800,
+      "error_rate_red": 0.15,
+      "note": "First Contentful Paint — auto-collected by k6/browser. Real 10-iter p95=535ms → max(1800, 642)=1800 (floor)",
+      "_seeding": "10-iter observed=535ms; max(1800, 642)=1800 (floor)"
+    },
+    "browser_web_vital_lcp": {
+      "p95_red_ms": 2500,
+      "error_rate_red": 0.15,
+      "note": "Largest Contentful Paint — auto-collected by k6/browser. Real 10-iter p95=610ms → max(2500, 732)=2500 (floor)",
+      "_seeding": "10-iter observed=610ms; max(2500, 732)=2500 (floor)"
+    }
+  }
+}

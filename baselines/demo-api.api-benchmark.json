@@ -1,0 +1,22 @@
+{
+  "team": "demo-api",
+  "env": "stg",
+  "profile": "api-benchmark",
+  "updated": "2026-01-01",
+  "source": "EXAMPLE baseline — illustrative values, not a measured run. Replace it by running the profile against your own target and letting `curate-baselines` seed it: threshold = max(api_floor, observed_p95 * 1.2).",
+  "endpoints": [
+    {
+      "name": "GET /api/config",
+      "metric": "demo_api_config_health",
+      "note": "Shell bootstrap signal — first meaningful authenticated response after login",
+      "p95_red_ms": 1000,
+      "error_rate_red": 0.02
+    }
+  ],
+  "arch": {
+    "type": "microfrontend shell",
+    "gateway": "API gateway",
+    "auth": "WS-Federation SSO via auth.example.com — httpOnly session cookie",
+    "target_url": "https://demo-app.example.com"
+  }
+}

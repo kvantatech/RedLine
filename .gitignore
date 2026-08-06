@@ -1,0 +1,33 @@
+# Transient run artifacts — keep the folders' README.md, ignore everything else
+reports/*
+!reports/README.md
+logs/*
+!logs/README.md
+
+# Captured / generated artifacts
+.env
+*.har
+**/summary.json
+**/contract.json
+**/run-error.txt
+
+# Node / dependencies
+node_modules/
+
+# Local-only handoffs & brainstorm session dirs
+.local/
+.superpowers/
+
+# Claude Code personal/local settings (servers are defined in committed .mcp.json)
+.claude/settings.local.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Playwright MCP session snapshots
+.playwright-mcp/
+
+# Playwright test results and reports
+test-results/
+playwright-report/

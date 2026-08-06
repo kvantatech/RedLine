@@ -1,0 +1,77 @@
+#!/bin/sh
+# ============================================================================
+# perf-eng-agent pre-commit hook  --  P0 SCAFFOLD STUB
+# ----------------------------------------------------------------------------
+# Portable POSIX sh. On Windows this runs under git-for-windows' bundled bash.
+# Activate with:  git config core.hooksPath .githooks
+#
+# STATUS: STUB. Every check below currently ECHOes its intent and exits 0.
+#         When implemented, each violating check MUST exit non-zero (1) to
+#         BLOCK the commit. Wire up the real logic in P1.
+# ============================================================================
+
+set -eu
+
+fail() {
+  # Helper for the real implementation: print reason + abort the commit.
+  echo "pre-commit: BLOCKED -- $1" >&2
+  exit 1
+}
+
+# Files staged for this commit (added/copied/modified/renamed).
+staged="$(git diff --cached --name-only --diff-filter=ACMR || true)"
+
+# ----------------------------------------------------------------------------
+# CHECK (a) -- DENY writes into a submodule-pinned team's envs/<team>/
+#   Plain in-repo envs/<team>/ folders are the writable "proven" tier — scripts
+#   graduate there via perf-author. But if a company pins a team's envs/<team>/
+#   to an external repo as a git submodule, that content is READ-ONLY here
+#   (propose changes as draft PRs upstream). Block staged writes under any path
+#   listed as a submodule in .gitmodules. With no submodules, nothing is blocked.
+# ----------------------------------------------------------------------------
+sub_paths="$(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null | awk '{print $2}' || true)"
+violations=""
+for f in $(printf '%s\n' "$staged" | grep -E '^envs/' || true); do
+  mode="$(git ls-files --stage -- "$f" 2>/dev/null | awk '{print $1}')"
+  [ "$mode" = "160000" ] && continue   # submodule pointer update itself — allowed
+  for sp in $sub_paths; do
+    case "$f" in "$sp"/*) violations="$violations $f" ;; esac
+  done
+done
+if [ -n "$violations" ]; then
+  fail "writes into a read-only submodule-pinned team folder are forbidden:$violations"
+fi
+echo "pre-commit [a]: envs/ submodule read-only guard ENFORCED (ok)"
+
+# ----------------------------------------------------------------------------
+# CHECK (b) -- doc-consistency-check literal checks
+#   Run the literal-string consistency checks (status.json vs docs, locked
+#   decisions, schema-version markers, etc.). Non-zero => block.
+# ----------------------------------------------------------------------------
+echo "pre-commit [STUB b]: would run doc-consistency-check literal checks"
+# TODO(P1): uncomment to enforce
+# if ! ./.githooks/doc-consistency-check.sh; then
+#   fail "doc-consistency-check failed (literal checks)"
+# fi
+
+# ----------------------------------------------------------------------------
+# CHECK (c) -- DENY a jira draft commit lacking a Reviewer SIGN_OFF
+#   ENFORCED (P3). Any staged Jira draft (jira-draft.md or *.jira.md) must have
+#   a sibling reviewer-decision.json with "decision": "SIGN_OFF". reports/ is
+#   gitignored so this rarely fires -- it is the backstop for a draft escaping
+#   into the repo without review (mirrors Gate 2 of file-perf-regression-jira).
+# ----------------------------------------------------------------------------
+for f in $(printf '%s\n' "$staged" | grep -E '(^|/)jira-draft\.md$|\.jira\.md$' || true); do
+  dir="$(dirname "$f")"
+  decision_file="$dir/reviewer-decision.json"
+  if [ ! -f "$decision_file" ]; then
+    fail "jira draft '$f' has no sibling reviewer-decision.json (Reviewer sign-off required)"
+  fi
+  if ! grep -q '"decision"[[:space:]]*:[[:space:]]*"SIGN_OFF"' "$decision_file"; then
+    fail "jira draft '$f': reviewer-decision.json lacks decision SIGN_OFF"
+  fi
+done
+echo "pre-commit [c]: jira-draft Reviewer sign-off guard ENFORCED (ok)"
+
+echo "pre-commit: checks (a) + (c) enforced; (b) doc-consistency is a stub"
+exit 0

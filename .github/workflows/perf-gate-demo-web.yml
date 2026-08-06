@@ -1,0 +1,68 @@
+# perf-gate — demo-web pilot (delivery surface #2, report-only burn-in)
+#
+# Manually dispatched only. This is the pilot wiring of the deterministic
+# run-k6-action gate; demo-web's own CI adopts the same `uses:` block after the
+# Go/No-Go checklist passes (planning repo agent/DELIVERY-MODEL.md §8).
+#
+# Report-only: the job NEVER fails on a red verdict during burn-in — the
+# verdict lands in the job summary and the uploaded artifact. Switching to
+# enforce happens in perf-gate.yaml (gate.mode), not here.
+#
+# Prerequisites before first dispatch:
+#   - uses org-level PERF_TEST_USERNAME / PERF_TEST_PASSWORD (same secrets as k6-build-tests.yml)
+#
+# TODO(PERF-101): switch runs-on back to self-hosted-runner-set once DevOps
+#   adds your-org/perf-eng-agent to that runner group. Temporarily on ubuntu-latest
+#   so the burn-in can proceed — ubuntu-latest can reach demo-app.example.com.
+#
+# TODO(PERF-101): browser-journey is DEFERRED on ubuntu-latest — k6 exit 108
+#   (Chromium launch) persists even with Xvfb + playwright deps (runs #4-#6,
+#   2026-06-10). Burn-in proceeds on api-benchmark only; re-test browser-journey
+#   on the ARC runner once the group grant lands.
+
+name: perf-gate-demo-web
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'demo-web profile to gate'
+        type: choice
+        required: true
+        default: api-benchmark
+        options:
+          - api-benchmark
+          - browser-journey
+
+permissions:
+  contents: read
+
+jobs:
+  perf-gate:
+    runs-on: ubuntu-latest  # TODO(PERF-101): revert to self-hosted-runner-set
+    steps:
+      - uses: actions/checkout@v5  # v5 = Node 24 (Node 20 actions forced off June 16, 2026)
+
+      - name: Run perf gate (report-only)
+        id: gate
+        uses: ./.github/actions/run-k6-action
+        env:
+          PERF_USERNAME: ${{ secrets.PERF_TEST_USERNAME }}
+          STAGING_PASSWORD: ${{ secrets.PERF_TEST_PASSWORD }}
+        with:
+          script: envs/demo-web/${{ inputs.profile }}/script.js
+          gate-config: envs/demo-web/${{ inputs.profile }}/perf-gate.yaml
+
+      - name: Upload run artifacts
+        if: always()
+        uses: actions/upload-artifact@v5  # v5 = Node 24
+        with:
+          name: perf-gate-${{ inputs.profile }}-${{ github.run_id }}
+          path: reports/
+          retention-days: 14
+
+      - name: Echo verdict
+        if: always()
+        run: |
+          echo "verdict: ${{ steps.gate.outputs.verdict }}"
+          echo "${{ steps.gate.outputs.summary-line }}"

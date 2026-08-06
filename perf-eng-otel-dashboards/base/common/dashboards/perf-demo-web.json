@@ -1,0 +1,1486 @@
+{
+  "title": "Perf - demo-web",
+  "uid": "perf-demo-web",
+  "tags": [
+    "perf-eng-agent",
+    "demo-web",
+    "k6"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "annotations": {
+    "list": []
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "environment",
+        "label": "Environment",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P2EDC53E3FEAC6ED1"
+        },
+        "query": {
+          "query": "label_values(k6_vus{product=\"demo-web\"}, environment)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      },
+      {
+        "name": "test_type",
+        "label": "Test Type",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P2EDC53E3FEAC6ED1"
+        },
+        "query": {
+          "query": "label_values(k6_vus{product=\"demo-web\", environment=~\"$environment\"}, test_type)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      },
+      {
+        "name": "test_file",
+        "label": "Test",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P2EDC53E3FEAC6ED1"
+        },
+        "query": {
+          "query": "label_values(k6_vus{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\"}, test_file)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      },
+      {
+        "name": "run_id",
+        "label": "Run",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P2EDC53E3FEAC6ED1"
+        },
+        "query": {
+          "query": "label_values(k6_vus{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", test_file=~\"$test_file\"}, run_id)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 4,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "id": 1,
+      "title": "Failed by Threshold",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "count((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) < 1) or vector(0)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F2495C",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "stat",
+      "id": 2,
+      "title": "Pass Rate",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "100 * (count((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) >= 1) or vector(0)) / scalar(count(((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) > 0)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "barchart",
+      "id": 3,
+      "title": "Pass Rate by Test",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "label_replace(label_replace(avg by (test_file) (((sum by (run_id, test_file) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))) or 0 * (sum by (run_id, test_file) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) / (sum by (run_id, test_file) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) * 100, \"test_file\", \"API Benchmark\", \"test_file\", \"api-benchmark\"), \"test_file\", \"Browser Journey\", \"test_file\", \"browser-journey\")",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fillOpacity": 80,
+        "fullHighlight": false,
+        "gradientMode": "none",
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xField": "test_file",
+        "xTickLabelMaxLength": 20,
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 80
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Pass Rate"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "id": 5,
+      "title": "Slowest Test p95 (iteration)",
+      "description": "p95 iteration duration per test across selected runs \u2014 largest value = bottleneck.",
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "label_replace(label_replace(histogram_quantile(0.95, sum by (test_file, le) (last_over_time(k6_iteration_duration_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))), \"test_file\", \"API Benchmark\", \"test_file\", \"api-benchmark\"), \"test_file\", \"Browser Journey\", \"test_file\", \"browser-journey\")",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": true,
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xField": "test_file",
+        "xTickLabelMaxLength": 20,
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 0,
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 80,
+            "lineWidth": 1,
+            "thresholdsStyle": {
+              "mode": "off"
+            },
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10000
+              },
+              {
+                "color": "red",
+                "value": 30000
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "p95"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "id": 4,
+      "title": "Last execution",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "max by (test_file, run_id) (last_over_time(k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\", test_file=~\".+\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "((sum by (test_file, run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range]))) or 0 * (sum by (test_file, run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))) / (sum by (test_file, run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "min_over_time(timestamp(max by (test_file, run_id) (k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\", test_file=~\".+\"}))[$__range:5m]) * 1000",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, test_file, run_id) (last_over_time(k6_iteration_duration_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=~\"$test_file\"}[$__range])))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        }
+      ],
+      "options": {
+        "cellHeight": "md",
+        "showHeader": true,
+        "sortBy": []
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "test_file"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Test"
+              },
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Virtual Users"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "custom.width",
+                "value": 130
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Passed"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": null
+                    },
+                    {
+                      "color": "green",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Last Run"
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Iteration p95"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 280
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": [
+              {
+                "desc": false,
+                "displayName": "Value #C"
+              }
+            ]
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value #A": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #B": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #C": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #D": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "run_id": {
+                "aggregations": [
+                  "last"
+                ],
+                "operation": "aggregate"
+              },
+              "test_file": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "test_file": 0,
+              "Value #C (last)": 1,
+              "run_id (last)": 2,
+              "Value #B (last)": 3,
+              "Value #D (last)": 4,
+              "Value #A (last)": 5
+            },
+            "renameByName": {
+              "Value #A (last)": "Value #A",
+              "Value #B (last)": "Value #B",
+              "Value #C (last)": "Value #C",
+              "Value #D (last)": "Value #D",
+              "run_id (last)": "run_id"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "id": 12,
+      "title": "API Benchmark (api-benchmark) \u2014 config p95",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "min_over_time(timestamp(max by (run_id) (k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}))[$__range:5m]) * 1000",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_demo_web_config_health_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) * on(run_id) group_left() ((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) == 1)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_demo_web_config_health_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) unless on(run_id) (((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range]))))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_demo_web_config_health_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) * on(run_id) group_left() ((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range])))) < bool 1)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "max by (run_id) (last_over_time(k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"api-benchmark\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.95,
+        "fullHighlight": false,
+        "groupWidth": 0.95,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "normal",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xField": "run_id",
+        "xTickLabelMaxLength": 0,
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF9830",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "displayName",
+                "value": "VUs"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #E"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "displayName",
+                "value": "Started"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "run_id",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "run_id": 0,
+              "Value #E": 1,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5
+            },
+            "renameByName": {
+              "Value #A": "Passed",
+              "Value #B": "Aborted",
+              "Value #C": "Failed by Threshold",
+              "Value #D": "VUs",
+              "Value #E": "Started"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "id": 13,
+      "title": "Browser Journey (browser-journey) \u2014 LCP p95",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P2EDC53E3FEAC6ED1"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "min_over_time(timestamp(max by (run_id) (k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}))[$__range:5m]) * 1000",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_browser_web_vital_lcp_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) * on(run_id) group_left() ((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) == 1)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_browser_web_vital_lcp_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) unless on(run_id) (((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range]))))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "(histogram_quantile(0.95, sum by (le, run_id) (last_over_time(k6_browser_web_vital_lcp_milliseconds_bucket{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) * on(run_id) group_left() ((((sum by (run_id) (last_over_time(k6_test_run_passed_total{condition=\"nonzero\", product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range]))) or 0 * (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) / (sum by (run_id) (last_over_time(k6_test_run_passed_total{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range])))) < bool 1)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P2EDC53E3FEAC6ED1"
+          },
+          "expr": "max by (run_id) (last_over_time(k6_vus_max{product=\"demo-web\", environment=~\"$environment\", test_type=~\"$test_type\", run_id=~\"$run_id\", test_file=\"browser-journey\"}[$__range]))",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "",
+          "range": false,
+          "refId": "D"
+        }
+      ],
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.95,
+        "fullHighlight": false,
+        "groupWidth": 0.95,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "auto",
+        "showValue": "always",
+        "stacking": "normal",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        },
+        "xField": "run_id",
+        "xTickLabelMaxLength": 0,
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "run_id"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "string"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
+                }
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #A"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#73BF69",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #B"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF9830",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #C"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": false
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #D"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "displayName",
+                "value": "VUs"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #E"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "displayName",
+                "value": "Started"
+              },
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "run_id",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "run_id": 0,
+              "Value #E": 1,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5
+            },
+            "renameByName": {
+              "Value #A": "Passed",
+              "Value #B": "Aborted",
+              "Value #C": "Failed by Threshold",
+              "Value #D": "VUs",
+              "Value #E": "Started"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

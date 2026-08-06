@@ -1,0 +1,12 @@
+{
+  "stats": { "startTime": "2026-07-08T12:00:00.000Z", "duration": 7200,
+             "expected": 2, "unexpected": 0, "skipped": 0, "flaky": 1 },
+  "suites": [
+    { "title": "nav.spec.ts", "file": "nav.spec.ts",
+      "specs": [
+        { "title": "theme toggle persists", "file": "nav.spec.ts",
+          "tests": [ { "status": "flaky",
+            "results": [ { "error": { "message": "Timed out waiting for toggle state" } } ] } ] }
+      ] }
+  ]
+}

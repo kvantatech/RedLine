@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0c0e" />
+  <title>RedLine — QA engineering agent</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><line x1='2.5' y1='11.3' x2='21.5' y2='11.3' stroke='%23c0625c' stroke-width='2.2'/><polyline points='3,18 8,16.5 13,17 17,7 21,4.5' fill='none' stroke='%23c8a769' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/><circle cx='21' cy='4.5' r='1.9' fill='%23c8a769'/></svg>" />
+  <link rel="stylesheet" id="theme-css" href="app.css" />
+  <script>
+    (function(){
+      var t = localStorage.getItem('redline-theme') || 'brass';
+      var map = { brass:'app.css', canvas:'app-theme-canvas.css', void:'app-theme-void.css' };
+      document.getElementById('theme-css').href = map[t] || 'app.css';
+    })();
+  </script>
+</head>
+<body>
+  <div id="bar"><i id="barfill"></i></div>
+
+  <aside id="rail">
+    <header class="brand">
+      <svg class="brandmark" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="2.5" y1="11.3" x2="21.5" y2="11.3" stroke="var(--red)" stroke-width="2.2"/>
+        <polyline points="3,18 8,16.5 13,17 17,7 21,4.5" stroke="var(--brass)" stroke-width="2"/>
+        <circle cx="21" cy="4.5" r="1.9" fill="var(--brass)"/>
+      </svg>
+      <div class="wordmark">RedLine</div>
+    </header>
+    <nav id="nav" aria-label="Sections"></nav>
+    <footer class="railfoot">
+      <div id="teamtag" class="teamtag"></div>
+      <div class="railmeta"><span id="count"></span></div>
+    </footer>
+  </aside>
+
+  <main id="main">
+    <header id="topbar"></header>
+    <div id="page"></div>
+  </main>
+
+  <script type="module" src="shell.js"></script>
+</body>
+</html>

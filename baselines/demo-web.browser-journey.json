@@ -1,0 +1,46 @@
+{
+  "team": "demo-web",
+  "profile": "browser-journey",
+  "env": "stg",
+  "script": "demo-web/browser-journey/script.js",
+  "captured": "2026-01-01",
+  "note": "EXAMPLE baseline — illustrative values, not a measured run. Thresholds follow the browser seeding rule: max(industry_standard, observed_p95 * 1.2). error_rate_red 0.15 tolerates 1 flaky iteration in 10 (0.1 < 0.15); 2+ failures (0.2) → red. Replace by running the profile against your own target; `curate-baselines` reseeds from the k6 --summary-export (authoritative over handleSummary).",
+  "metrics": {
+    "demo_web_browser_login_ms": {
+      "p95_red_ms": 8000,
+      "error_rate_red": 0.15,
+      "note": "Login nav start → shell nav visible. Example threshold at the 8000ms floor.",
+      "_seeding": "example value — reseed from your own run"
+    },
+    "browser_web_vital_fcp": {
+      "p95_red_ms": 3100,
+      "error_rate_red": 0.15,
+      "note": "First Contentful Paint — auto-collected by k6/browser. Industry floor 1800ms.",
+      "_seeding": "example value — reseed from your own run"
+    },
+    "browser_web_vital_lcp": {
+      "p95_red_ms": 4450,
+      "error_rate_red": 0.15,
+      "note": "Largest Contentful Paint — auto-collected by k6/browser. Industry floor 2500ms.",
+      "_seeding": "example value — reseed from your own run"
+    },
+    "demo_web_browser_ng15_ms": {
+      "p95_red_ms": 3000,
+      "error_rate_red": 0.15,
+      "note": "Angular 15 app button click → h1 visible at /app2/. Example threshold at the 3000ms floor.",
+      "_seeding": "example value — reseed from your own run"
+    },
+    "demo_web_browser_react_ms": {
+      "p95_red_ms": 3000,
+      "error_rate_red": 0.15,
+      "note": "React app button click → h1 visible at /app3. Example threshold at the 3000ms floor.",
+      "_seeding": "example value — reseed from your own run"
+    },
+    "demo_web_browser_profile_ms": {
+      "p95_red_ms": 1500,
+      "error_rate_red": 0.15,
+      "note": "app-icon-button#menu-button click → Logout menuitem visible. Example threshold at the 1500ms floor.",
+      "_seeding": "example value — reseed from your own run"
+    }
+  }
+}

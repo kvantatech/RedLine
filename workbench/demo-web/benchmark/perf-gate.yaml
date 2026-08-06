@@ -1,0 +1,18 @@
+# demo-web · benchmark profile — gate thresholds (SUPERSEDED)
+# This workbench draft was renamed to api-benchmark. Active version: envs/demo-web/api-benchmark/
+# Source of truth: baselines/demo-web.api-benchmark.json
+
+team: demo-web
+profile: benchmark
+env: stg
+script: demo-web/benchmark/script.js   # relative to workbench/
+
+thresholds:
+  - metric: demo_web_config_health     # GET /api/config — shell bootstrap signal
+    p95_red_ms: 900                  # single threshold; green/red only
+  - metric: http_req_failed
+    error_rate_red: 0.02
+
+gate:
+  mode: report-only          # report-only → enforce after burn-in sign-off
+  exit_code_on_red: 99       # k6-native thresholds-failed code; 97 is reserved for crash/abort

@@ -1,0 +1,23 @@
+# saucedemo-team · browser-journey profile — gate thresholds
+# Source of truth: baselines/saucedemo-team.browser-journey.json
+
+team: saucedemo-team
+profile: browser-journey
+env: stg
+script: saucedemo-team/browser-journey/script.js   # relative to envs/
+
+thresholds:
+  - metric: saucedemo_browser_login_ms   # login → inventory visible
+    p95_red_ms: 3000
+  - metric: saucedemo_browser_addcart_ms # add-to-cart → badge
+    p95_red_ms: 1500
+  - metric: saucedemo_browser_cart_ms    # cart link → item visible
+    p95_red_ms: 1500
+  - metric: browser_web_vital_fcp
+    p95_red_ms: 1800
+  - metric: browser_web_vital_lcp
+    p95_red_ms: 2500
+
+gate:
+  mode: report-only                      # new team starts report-only (burn-in rule)
+  exit_code_on_red: 99                   # k6-native thresholds-failed code; 97 reserved for crash

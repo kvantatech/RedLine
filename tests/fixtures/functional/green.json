@@ -1,0 +1,5 @@
+{
+  "stats": { "startTime": "2026-07-08T12:00:00.000Z", "duration": 8300,
+             "expected": 3, "unexpected": 0, "skipped": 0, "flaky": 0 },
+  "suites": []
+}

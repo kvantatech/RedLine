@@ -1,0 +1,12 @@
+{
+  "stats": { "startTime": "2026-07-08T12:00:00.000Z", "duration": 9100,
+             "expected": 2, "unexpected": 1, "skipped": 0, "flaky": 0 },
+  "suites": [
+    { "title": "wizard.spec.ts", "file": "wizard.spec.ts",
+      "specs": [
+        { "title": "creates a team", "file": "wizard.spec.ts",
+          "tests": [ { "status": "unexpected",
+            "results": [ { "error": { "message": "expect(locator).toBeVisible() failed\nCall log: ..." } } ] } ] }
+      ] }
+  ]
+}

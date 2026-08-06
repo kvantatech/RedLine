@@ -1,0 +1,16 @@
+team: demo-web
+profile: soak
+script: demo-web/soak/script.js   # relative to envs/
+gate_mode: report-only           # ALWAYS report-only — soak is on-demand; human reviews trend graph
+trigger: on-demand
+environments:
+  - stg                          # staging only — hours of sustained load, never prod
+
+thresholds:
+  - metric: demo_web_config_health
+    p95_ms: 900
+    note: Same as load threshold — degradation over time (rising p95) is the signal to watch
+
+  - metric: http_req_failed
+    rate_max: 0.01
+    note: Error rate must stay flat across the full soak window

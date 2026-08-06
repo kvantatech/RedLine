@@ -1,0 +1,4 @@
+{
+  "_doc": "Per-team policy for heal-playwright-suite (production test-rot repair). 'ask' = healed suite stays a workbench proposal + diff; a human graduates it. 'trust' = after green x2 the healed suite auto-graduates to envs/<team>/functional/ (files copied, NEVER git-committed — the uncommitted diff is the audit surface; revert = git checkout). Missing team key or missing/invalid file = 'ask' (fail-safe). Example: { \"default\": \"ask\", \"demo-web\": \"trust\" }",
+  "default": "ask"
+}

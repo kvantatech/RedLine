@@ -1,0 +1,413 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "RedLine red lines",
+      "folder": "demo-perf",
+      "interval": "5m",
+      "rules": [
+        {
+          "uid": "rl-9e5137ad9bda",
+          "title": "RedLine red line — demo-api/api-benchmark GET /api/config p95 > 1000ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_api_config_health_milliseconds_bucket{product=\"demo-api\", test_file=\"api-benchmark\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        1000
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-api",
+            "profile": "api-benchmark"
+          },
+          "annotations": {
+            "summary": "demo-api/api-benchmark — GET /api/config p95 crossed its red line (1000ms). Baseline: baselines/demo-api.api-benchmark.json."
+          }
+        },
+        {
+          "uid": "rl-8d7a64cfc74b",
+          "title": "RedLine red line — demo-web/api-benchmark GET /api/config p95 > 1000ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_web_config_health_milliseconds_bucket{product=\"demo-web\", test_file=\"api-benchmark\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        1000
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "api-benchmark"
+          },
+          "annotations": {
+            "summary": "demo-web/api-benchmark — GET /api/config p95 crossed its red line (1000ms). Baseline: baselines/demo-web.api-benchmark.json."
+          }
+        },
+        {
+          "uid": "rl-f5dc803d6755",
+          "title": "RedLine red line — demo-web/browser-journey demo_web_browser_login_ms p95 > 8000ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_web_browser_login_ms_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        8000
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — demo_web_browser_login_ms p95 crossed its red line (8000ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        },
+        {
+          "uid": "rl-f2e2f3f6d383",
+          "title": "RedLine red line — demo-web/browser-journey browser_web_vital_fcp p95 > 3100ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_browser_web_vital_fcp_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        3100
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — browser_web_vital_fcp p95 crossed its red line (3100ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        },
+        {
+          "uid": "rl-6cfb1768ff6b",
+          "title": "RedLine red line — demo-web/browser-journey browser_web_vital_lcp p95 > 4450ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_browser_web_vital_lcp_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        4450
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — browser_web_vital_lcp p95 crossed its red line (4450ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        },
+        {
+          "uid": "rl-d3506b89ee03",
+          "title": "RedLine red line — demo-web/browser-journey demo_web_browser_ng15_ms p95 > 3000ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_web_browser_ng15_ms_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        3000
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — demo_web_browser_ng15_ms p95 crossed its red line (3000ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        },
+        {
+          "uid": "rl-84d108deab60",
+          "title": "RedLine red line — demo-web/browser-journey demo_web_browser_react_ms p95 > 3000ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_web_browser_react_ms_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        3000
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — demo_web_browser_react_ms p95 crossed its red line (3000ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        },
+        {
+          "uid": "rl-630a760baec9",
+          "title": "RedLine red line — demo-web/browser-journey demo_web_browser_profile_ms p95 > 1500ms",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": {
+                "from": 1800,
+                "to": 0
+              },
+              "datasourceUid": "P2EDC53E3FEAC6ED1",
+              "model": {
+                "expr": "histogram_quantile(0.95, sum by (le) (increase(k6_demo_web_browser_profile_ms_milliseconds_bucket{product=\"demo-web\", test_file=\"browser-journey\", environment=\"staging\"}[30m])))",
+                "instant": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "model": {
+                "type": "threshold",
+                "refId": "C",
+                "expression": "A",
+                "conditions": [
+                  {
+                    "evaluator": {
+                      "type": "gt",
+                      "params": [
+                        1500
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "for": "0s",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "source": "redline",
+            "team": "demo-web",
+            "profile": "browser-journey"
+          },
+          "annotations": {
+            "summary": "demo-web/browser-journey — demo_web_browser_profile_ms p95 crossed its red line (1500ms). Baseline: baselines/demo-web.browser-journey.json."
+          }
+        }
+      ]
+    }
+  ]
+}

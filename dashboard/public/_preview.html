@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0c0e" />
+  <title>RedLine — redesign preview (mocked server)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='none' stroke='%23C8A769' stroke-width='2'/></svg>" />
+  <link rel="stylesheet" id="theme-css" href="app.css" />
+  <script>
+    (function(){
+      var t = localStorage.getItem('redline-theme') || 'brass';
+      var map = { brass:'app.css', canvas:'app-theme-canvas.css', void:'app-theme-void.css' };
+      document.getElementById('theme-css').href = map[t] || 'app.css';
+    })();
+  </script>
+</head>
+<body>
+  <div id="bar"><i id="barfill"></i></div>
+
+  <aside id="rail">
+    <header class="brand">
+      <div class="wordmark">RedLine</div>
+      <div class="mark">perf·eng agent</div>
+      <div class="sub">guided workflows</div>
+    </header>
+    <nav id="nav" aria-label="Onboarding steps"></nav>
+    <footer class="railfoot">
+      <div id="teamtag" class="teamtag"></div>
+      <div class="railmeta"><span id="count">—</span></div>
+    </footer>
+  </aside>
+
+  <main id="main" aria-label="Current step"></main>
+
+  <script src="_preview-mock.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

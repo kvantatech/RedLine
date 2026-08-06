@@ -1,0 +1,14 @@
+{
+  "_schema": "team-channels v2 — maps team name to its alert channel(s) for notify-responsible-team",
+  "_shapes": "a team maps to ONE channel object (v1, implicit slack) or an ARRAY of channel objects (v2)",
+  "_types": "slack {channel, webhook_env} · msteams {channel, webhook_env} · pagerduty {routing_key_env} · opsgenie {api_key_env, region?: us|eu}",
+  "_secrets": "config names the env var only — the secret itself lives in gitignored .env / .claude/settings.local.json, never here",
+  "_teams": "team names must match the first segment of baselines/<team>.<profile>.json filenames",
+  "_example": [
+    { "type": "slack", "channel": "#perf-alerts", "webhook_env": "SLACK_WEBHOOK_MY_TEAM" },
+    { "type": "msteams", "channel": "Perf alerts", "webhook_env": "TEAMS_WEBHOOK_MY_TEAM" },
+    { "type": "pagerduty", "routing_key_env": "PD_ROUTING_KEY_MY_TEAM" },
+    { "type": "opsgenie", "api_key_env": "OPSGENIE_KEY_MY_TEAM", "region": "us" }
+  ],
+  "demo-web": { "channel": "#perf-alerts", "webhook_env": "SLACK_WEBHOOK_DEMO_WEB" }
+}
