@@ -6,7 +6,7 @@ All notable changes to RedLine. Dates are release dates.
 
 - **Database testing**: first-class Postgres support (pgbench-style benchmarks) under the same red/green baseline and deterministic gate that cover HTTP and browser today.
 - **Dashboard graphs**: richer, more readable trend charts and a friendlier results view.
-- **Log-aware Q&A**: ask the dashboard plain-language questions about recent runs, answered from the run ledger.
+- **AI chatbot**: ask the dashboard plain-language questions about recent runs, answered from the run ledger.
 
 ## [0.9.4] — 2026-08-06
 

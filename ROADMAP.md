@@ -17,7 +17,7 @@ Three features planned for upcoming releases (not yet built):
 
 1. **Database testing (Postgres).** First-class database benchmarking: pgbench-style workloads under the same red/green baseline and deterministic gate that cover HTTP and browser today. Extends the agent's substrate from web and API to the database tier.
 2. **Dashboard graphs upgrade.** Richer, more readable trend charts and a friendlier, more self-serve results view.
-3. **Log-aware Q&A chatbot.** A plain-language interface over the run ledger, so anyone can ask "what regressed yesterday?" and get an answer grounded in the actual run history. A natural fit for the existing MCP server.
+3. **AI chatbot (log-aware Q&A).** A plain-language interface over the run ledger, so anyone can ask "what regressed yesterday?" and get an answer grounded in the actual run history. A natural fit for the existing MCP server.
 
 ## 2026-07-27 — Midscene gap analysis: runtime-AI stays out; DOM-less exception noted, deferred
 

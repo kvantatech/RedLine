@@ -176,7 +176,7 @@ Onboarding wizard · run/schedule tests (`trigger: cron`) · cross-team Insights
 Next up:
 - **Database testing**: first-class Postgres support (pgbench-style benchmarks), so the same red/green baseline and deterministic gate cover a database, not just HTTP and browser.
 - **Dashboard graphs**: richer, more readable trend charts and a friendlier, self-serve results view.
-- **Log-aware Q&A**: ask the dashboard plain-language questions about recent runs ("what regressed yesterday?"), answered from the run ledger.
+- **AI chatbot**: ask the dashboard plain-language questions about recent runs ("what regressed yesterday?"), answered from the run ledger.
 
 ## Contributing & security
 
