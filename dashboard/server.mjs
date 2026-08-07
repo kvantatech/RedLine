@@ -135,12 +135,32 @@ const checks = {
 };
 
 let checkCache = { at: 0, results: null };
+let checkInFlight = null;
+
+// The prerequisite checks shell out (`claude --version` alone costs ~1.7s), so a
+// request that lands on an expired cache must never pay for them: it serves the
+// stale result and lets the refresh finish in the background. Without this, one
+// request per CHECK_TTL_MS window blocked for 1.5-3.5s — including the very first
+// page load, which is a new user's first impression of the dashboard.
+function refreshChecks() {
+  if (checkInFlight) return checkInFlight;   // collapse concurrent refreshes into one
+  checkInFlight = (async () => {
+    const results = {};
+    await Promise.all(Object.keys(checks).map(async (id) => { results[id] = await checks[id](); }));
+    checkCache = { at: Date.now(), results };
+    return results;
+  })().finally(() => { checkInFlight = null; });
+  return checkInFlight;
+}
+
 async function runChecks({ fresh = false } = {}) {
-  if (!fresh && checkCache.results && Date.now() - checkCache.at < CHECK_TTL_MS) return checkCache.results;
-  const results = {};
-  await Promise.all(Object.keys(checks).map(async (id) => { results[id] = await checks[id](); }));
-  checkCache = { at: Date.now(), results };
-  return results;
+  // Explicit refresh (?fresh=1) means the user asked for current truth — await it.
+  if (fresh) return refreshChecks();
+  // Nothing cached yet (pre-warm still running): join it rather than spawning a second.
+  if (!checkCache.results) return refreshChecks();
+  // Stale: hand back what we have and revalidate behind the request.
+  if (Date.now() - checkCache.at >= CHECK_TTL_MS) refreshChecks();
+  return checkCache.results;
 }
 
 // ── the agent runner (headless Claude Code) ──────────────────────────
@@ -1008,6 +1028,8 @@ const server = createServer(async (req, res) => {
 server.listen(PORT, HOST, () => {
   const addr = `http://${HOST}:${PORT}`;
   console.log(`RedLine onboarding → ${addr}`);
+  // Warm the prerequisite checks now so the first page load doesn't pay for them.
+  refreshChecks().catch(() => {});
   if (!process.argv.includes('--no-open')) {
     const cmd = process.platform === 'win32' ? `start "" "${addr}"`
       : process.platform === 'darwin' ? `open "${addr}"` : `xdg-open "${addr}"`;
