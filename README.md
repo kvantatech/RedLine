@@ -37,7 +37,10 @@ AI does the expensive thinking: authoring scripts, healing broken locators, narr
 |---|---|---|
 | [Node.js](https://nodejs.org) | ≥ 20 | dashboard + all deterministic tooling |
 | [k6](https://k6.io/docs/get-started/installation/) | ≥ 2.0 | performance suites |
+| [Playwright](https://playwright.dev/docs/intro) | ≥ 1.54 | functional suites |
 | [Claude Code](https://claude.com/claude-code) | latest | the agent that walks the tree (authoring, triage) |
+
+Only the suite type you actually run needs its tool: the dashboard and `npm test` need neither k6 nor Playwright. Functional suites also need the browser binaries once, via `npx playwright install chromium`. If you install k6 while a terminal is already open, start a new one before launching the dashboard, or its environment check will still report k6 as missing.
 
 ```bash
 git clone https://github.com/kvantatech/RedLine.git
