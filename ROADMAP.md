@@ -6,9 +6,18 @@
 - **`script-author` live via `k6 x agent`** (P4) — the prerequisite for `mass-onboarding`.
 - **`curate-baselines` PR path + weekly cron + GitHub MCP** (P5) — closes the full SDLC loop.
 - **First live-fire of the alert senders** — PagerDuty / OpsGenie / MS Teams are dry-run-tested; a real key in `.env` is all that's missing.
+- **Near-term features (planned, not built):** database/Postgres testing, a dashboard-graphs upgrade, and a log-aware Q&A chatbot (see 2026-08-07 below).
 - **Deferred by decision:** remote-dispatch control plane (paid tier, only if real users ask); runtime vision models (see 2026-07-27 below).
 
 Decisions and planned work, dated; newest first.
+
+## 2026-08-07 — near-term feature roadmap
+
+Three features planned for upcoming releases (not yet built):
+
+1. **Database testing (Postgres).** First-class database benchmarking: pgbench-style workloads under the same red/green baseline and deterministic gate that cover HTTP and browser today. Extends the agent's substrate from web and API to the database tier.
+2. **Dashboard graphs upgrade.** Richer, more readable trend charts and a friendlier, more self-serve results view.
+3. **Log-aware Q&A chatbot.** A plain-language interface over the run ledger, so anyone can ask "what regressed yesterday?" and get an answer grounded in the actual run history. A natural fit for the existing MCP server.
 
 ## 2026-07-27 — Midscene gap analysis: runtime-AI stays out; DOM-less exception noted, deferred
 

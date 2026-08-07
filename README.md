@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-3fb950.svg)](LICENSE)
 [![Node ≥ 20](https://img.shields.io/badge/node-%E2%89%A5%2020-3fb950?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![Tests](https://img.shields.io/badge/tests-38%20passing-3fb950.svg)](tests/)
+[![Status](https://img.shields.io/badge/status-v0.9%20active-7d64ff.svg)](STATUS.md)
 [![Runtime deps](https://img.shields.io/badge/runtime%20deps-0-blue.svg)](package.json)
 [![k6](https://img.shields.io/badge/k6-%E2%89%A5%202.0-7d64ff?logo=k6&logoColor=white)](https://k6.io)
 [![Playwright](https://img.shields.io/badge/Playwright-1.54-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev)
@@ -167,6 +168,15 @@ Onboarding wizard · run/schedule tests (`trigger: cron`) · cross-team Insights
 **Windows, macOS, Linux?** All three. Pure Node + k6 + Playwright.
 
 **Where's the roadmap?** [ROADMAP.md](ROADMAP.md) for decisions and what's next; [STATUS.md](STATUS.md) for the current build state (v0.9: core engine complete, dashboard refinement ongoing).
+
+## Status & roadmap
+
+**v0.9, actively developed.** Built June to August 2026, released as a clean-room open-source snapshot in August 2026. The core engine is complete and covered by 38 tests; the dashboard and some integrations are still being refined. Current state: [STATUS.md](STATUS.md). Decisions and plans: [ROADMAP.md](ROADMAP.md).
+
+Next up:
+- **Database testing**: first-class Postgres support (pgbench-style benchmarks), so the same red/green baseline and deterministic gate cover a database, not just HTTP and browser.
+- **Dashboard graphs**: richer, more readable trend charts and a friendlier, self-serve results view.
+- **Log-aware Q&A**: ask the dashboard plain-language questions about recent runs ("what regressed yesterday?"), answered from the run ledger.
 
 ## Contributing & security
 
