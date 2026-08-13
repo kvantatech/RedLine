@@ -17,7 +17,7 @@ const START = { id: 'start', title: 'Start' };
 // Performance (k6) — the existing k6 flows, unchanged, minus their leading Start.
 const ONBOARD_BODY = [
   { id: 'ready', title: 'Before we start' },
-  { id: 'team', title: 'Your team' },
+  { id: 'team', title: 'Your project' },
   { id: 'path', title: 'Pick your test' },
   { id: 'describe', title: 'What to test' },
   { id: 'create', title: 'Create the test' },
@@ -61,7 +61,10 @@ export const profileFor = (path) => (path === 'browser' ? 'browser-journey' : 'a
 // reachable only through an explicit human click on a reviewed draft.)
 const AUTHOR_TOOLS = [
   'Read', 'Glob', 'Grep', 'Write', 'Edit', 'MultiEdit', 'TodoWrite',
-  'Bash(k6 *)', 'Bash(node *)',
+  // Bash(mkdir *): both author and benchmark prompts order `mkdir -p reports/<dir>`
+  // before --summary-export (k6 fails outright if the dir is missing). A headless
+  // -p run cannot prompt for permission, so an unlisted mkdir is denied outright.
+  'Bash(k6 *)', 'Bash(node *)', 'Bash(mkdir *)',
   'mcp__k6__validate_script', 'mcp__k6__get_documentation', 'mcp__k6__list_sections',
 ];
 
@@ -99,7 +102,7 @@ House rules (non-negotiable):
 - First read envs/demo-web/${profile}/script.js — it is the canonical example. Follow its conventions exactly: per-vu-iterations executor, 1 VU, 10 iterations, one custom Trend metric per measured transaction, a test_run_passed Rate, and the same tags contract (environment, test_file, test_type, run_id, team, product) with team "${team}" and environment "${env}".
 - ${env === 'prod'
     ? 'TARGET IS PRODUCTION. Per CLAUDE.md hard rule 2, running against production requires explicit operator authorization and is limited to a 1-VU benchmark; heavy profiles are always blocked. If you have not been given explicit production authorization for this run, STOP and report that instead of running against production.'
-    : 'Use the staging/test environment. If the provided URL is clearly production, STOP immediately and report that instead of authoring (v1.0 defaults to STG-only).'}
+    : `The operator selected environment "${env}" for this target in the dashboard. That selection is authoritative — do NOT re-classify the URL yourself and do NOT refuse because the hostname lacks a "staging"/"stg"/"qa" marker. Hard rule 2 is enforced at the dashboard boundary (server.mjs stores the operator's explicit choice), not by guessing from the URL. Author the test against the URL as given.`}
 - You are running unattended, launched from the RedLine onboarding dashboard by a non-technical team member. Nobody can answer questions — make reasonable choices and note them in script comments.`;
 
 export function buildAuthorPrompt(cfg) {

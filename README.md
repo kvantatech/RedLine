@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-3fb950.svg)](LICENSE)
 [![Node ≥ 20](https://img.shields.io/badge/node-%E2%89%A5%2020-3fb950?logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![Tests](https://img.shields.io/badge/tests-38%20passing-3fb950.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-51%20passing-3fb950.svg)](tests/)
 [![Status](https://img.shields.io/badge/status-v0.9%20active-7d64ff.svg)](STATUS.md)
 [![Runtime deps](https://img.shields.io/badge/runtime%20deps-0-blue.svg)](package.json)
 [![k6](https://img.shields.io/badge/k6-%E2%89%A5%202.0-7d64ff?logo=k6&logoColor=white)](https://k6.io)
@@ -40,7 +40,22 @@ AI does the expensive thinking: authoring scripts, healing broken locators, narr
 | [Playwright](https://playwright.dev/docs/intro) | ≥ 1.54 | functional suites |
 | [Claude Code](https://claude.com/claude-code) | latest | the agent that walks the tree (authoring, triage) |
 
-Only the suite type you actually run needs its tool: the dashboard and `npm test` need neither k6 nor Playwright. Functional suites also need the browser binaries once, via `npx playwright install chromium`. If you install k6 while a terminal is already open, start a new one before launching the dashboard, or its environment check will still report k6 as missing.
+Only the suite type you actually run needs its tool: the dashboard and `npm test` need neither k6 nor Playwright. If you install k6 while a terminal is already open, start a new one before launching the dashboard, or its environment check will still report k6 as missing.
+
+```bash
+npm install -g @anthropic-ai/claude-code   # the agent that authors and triages
+winget install Grafana.k6                  # macOS/Linux: brew install k6
+npx playwright install chromium            # functional suites only, once
+```
+
+**Authentication and cost.** RedLine itself is free and self-hosted, but the authoring and triage steps run Claude Code, and **that needs a paid Anthropic account** — either a Claude Pro/Max subscription (`claude` handles the browser login) or an API key with credit on it from [console.anthropic.com](https://console.anthropic.com). For an API key, export it before starting the dashboard:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...        # Windows: $env:ANTHROPIC_API_KEY = "sk-ant-..."
+node dashboard/server.mjs
+```
+
+The dashboard spawns Claude Code as a child process and passes its own environment through, so an exported key is inherited. If you'd rather not export it, put `ANTHROPIC_API_KEY=sk-ant-...` in a `.env` file at the repo root — it's gitignored, and its contents are merged into the agent's environment. Nothing else in RedLine costs money: **the CI gate makes zero model calls** and needs no key at all.
 
 ```bash
 git clone https://github.com/kvantatech/RedLine.git
@@ -50,7 +65,15 @@ node dashboard/server.mjs        # → opens http://127.0.0.1:4242
 
 Answer the wizard's plain-language questions (team name, the API or user journey you care about) and RedLine **creates the k6 test, runs a first 10-iteration benchmark, and sets your red line live in front of you**. You don't need to be a performance engineer. Details: [dashboard/README.md](dashboard/README.md).
 
-Verify your copy in ten seconds (38 checks, no install):
+Creating the test costs one short agent run plus a single smoke iteration. The first benchmark is the 10-iteration one — if you're only trying RedLine out, **Skip for now** on that step finishes the wizard without it; your test is saved, it just has no red line until you come back and run it.
+
+Then: **run your tests manually or on a timer** from the dashboard's Run & judge and Schedules pages ([dashboard/README.md](dashboard/README.md#schedules-timed-runs)), and **wire the deterministic CI gate** into your own repo with [`run-k6-action`](.github/actions/run-k6-action/README.md) — a working workflow lives in [`.github/workflows/perf-gate-demo-web.yml`](.github/workflows/perf-gate-demo-web.yml).
+
+Each team's target address, environment, and test account are set once and kept per team — see **Projects** in the dashboard, or [`state/team-settings.json`](state/README.md).
+
+**Starting over.** All state is flat files — no database. To reset a trial install, delete `.local/` (wizard progress), `.env` (saved credentials), `state/team-settings.json` (per-team targets), `state/run-ledger.jsonl` (run history), `state/schedules.json` (timers), and the `workbench/<team>/` and `baselines/<team>.*.json` entries for teams you created. The example teams that ship with the repo can be deleted the same way.
+
+Verify your copy in ten seconds (51 checks, no install):
 
 ```bash
 npm test
@@ -164,7 +187,7 @@ Onboarding wizard · run/schedule tests (`trigger: cron`) · cross-team Insights
 
 **Does CI need an AI key?** No. The deploy gate is deterministic code. Model calls happen only at authoring/triage time, on your machine, through Claude Code.
 
-**What does it cost to run?** The infrastructure: nothing (your laptop / existing CI runner). Model usage: only the 3 subagent calls during authoring and triage. The doctrine is *corroborate before you spend*.
+**What does it cost to run?** The infrastructure: nothing (your laptop / existing CI runner). The models are not free: authoring and triage run Claude Code, so you need a Claude Pro/Max subscription or a funded `ANTHROPIC_API_KEY` — see [Authentication and cost](#quick-start). Model usage is deliberately small (only the 3 subagent calls during authoring and triage); the doctrine is *corroborate before you spend*.
 
 **Do I need Grafana?** No, it's optional and bring-your-own. RedLine can emit OTLP/Prometheus metrics and generate alert rules if you have a stack.
 
@@ -174,7 +197,7 @@ Onboarding wizard · run/schedule tests (`trigger: cron`) · cross-team Insights
 
 ## Status & roadmap
 
-**v0.9, actively developed.** Built June to August 2026, released as a clean-room open-source snapshot in August 2026. The core engine is complete and covered by 38 tests; the dashboard and some integrations are still being refined. Current state: [STATUS.md](STATUS.md). Decisions and plans: [ROADMAP.md](ROADMAP.md).
+**v0.9, actively developed.** Built June to August 2026, released as a clean-room open-source snapshot in August 2026. The core engine is complete and covered by 51 tests; the dashboard and some integrations are still being refined. Current state: [STATUS.md](STATUS.md). Decisions and plans: [ROADMAP.md](ROADMAP.md).
 
 Next up:
 - **Database testing**: first-class Postgres support (pgbench-style benchmarks), so the same red/green baseline and deterministic gate cover a database, not just HTTP and browser.

@@ -45,7 +45,9 @@ test.describe('two-path dashboard', () => {
     // advanceable), 'ready' is gated on the k6 / Claude Code environment
     // checks, which a bare runner fails.
     await page.getByRole('button', { name: /Is it fast\?/ }).click();
-    await expect(page.getByRole('heading', { name: "Let's set up performance testing for your team." })).toBeVisible();
+    // UPDATED 2026-08-13: the rail and wizard now say "project" everywhere the UI
+    // means a unit of work ("team" is kept only where it means the people alerted).
+    await expect(page.getByRole('heading', { name: "Let's set up performance testing for your project." })).toBeVisible();
     await expect(page.getByText('k6 — the tool that runs performance tests')).toBeVisible();
   });
 });

@@ -7,8 +7,14 @@ import { test, expect, Page } from '@playwright/test';
 // which makes the tests independent of whatever suite a previous test selected.
 
 async function gotoStart(page: Page) {
+  // HEALED 2026-07-17 (run redline-dashboard_functional_local_20260717T174107Z):
+  // the 2026-07-15 IA rework moved the wizard behind the "Create test" section —
+  // the sections nav owns #nav now, and the wizard's Start step lives in the
+  // "Wizard steps" rail inside #create. /Start/ matches both its "✓ Start" (done)
+  // and "1 Start" (current) accessible names.
   await page.goto('/');
-  await page.locator('#nav').getByRole('button', { name: /Start/ }).click();
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('button', { name: 'Create test' }).click();
+  await page.getByRole('navigation', { name: 'Wizard steps' }).getByRole('button', { name: /Start/ }).click();
   await expect(page.getByRole('heading', { name: 'What do you want to check?' })).toBeVisible();
 }
 
@@ -31,10 +37,17 @@ test.describe('two-path dashboard', () => {
     await expect(page.getByPlaceholder('e.g. demo-web')).toBeVisible();
   });
 
-  test('performance path reaches the set-up-or-run step', async ({ page }) => {
+  test('performance path reaches the environment-check step', async ({ page }) => {
+    // HEALED 2026-08-06: the "Set up a test, or run one you have?" fork was
+    // removed (see wizard.mjs — Create test authors a new test, the #run nav
+    // entry operates an existing one), so the performance path now lands
+    // straight on 'ready'. No Next click here: unlike func-intro (always
+    // advanceable), 'ready' is gated on the k6 / Claude Code environment
+    // checks, which a bare runner fails.
     await page.getByRole('button', { name: /Is it fast\?/ }).click();
-    await expect(page.getByRole('heading', { name: 'Set up a test, or run one you have?' })).toBeVisible();
-    await expect(page.getByText('Set up a new test')).toBeVisible();
-    await expect(page.getByText('Run & judge a test')).toBeVisible();
+    // UPDATED 2026-08-13: the rail and wizard now say "project" everywhere the UI
+    // means a unit of work ("team" is kept only where it means the people alerted).
+    await expect(page.getByRole('heading', { name: "Let's set up performance testing for your project." })).toBeVisible();
+    await expect(page.getByText('k6 — the tool that runs performance tests')).toBeVisible();
   });
 });

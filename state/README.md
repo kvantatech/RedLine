@@ -161,3 +161,32 @@ A wrong record is never edited in place. Append a correction line instead:
 `status: "correction"` keeps these lines out of the O0 dedupe scan (which only
 matches `status == "done"`). Consumers reading a corrected field should prefer
 the latest correction line for that `run_id`.
+
+## `team-settings.json` — per-team dashboard settings
+
+Written by the dashboard's Projects page. Maps a team to the settings that used
+to live in the single wizard session — which meant onboarding a second team
+overwrote the first team's target:
+
+```jsonc
+{ "<team>": {
+    "url":  "https://your-app.staging.example.com/api/health",
+    "env":  "stg",            // stg | prod | local — the operator's explicit choice
+    "path": "api",            // api | browser
+    "login": { "required": true, "credsSet": true } } }
+```
+
+**Never holds secrets.** `credsSet` is a flag; the account itself lives in the
+gitignored `.env` as `PERF_USERNAME_<TEAM>` / `STAGING_PASSWORD_<TEAM>` (team
+name uppercased, non-alphanumerics → `_`). When the dashboard launches an agent
+for a team it maps that team's pair onto the plain `PERF_USERNAME` /
+`STAGING_PASSWORD` the scripts read, so a script never learns which team it
+belongs to and one team's account never leaks into another team's run. Installs
+that predate per-team credentials keep working: an unsuffixed pair is the
+fallback.
+
+Iteration and VU counts are deliberately **not** here — 10 iterations at 1 VU is
+fixed by CLAUDE.md hard rule 7, because a single sample gives no meaningful p95.
+
+Alert channels stay in `team-channels.json` and heal policy in
+`heal-policy.json`; the Projects page shows both read-only.

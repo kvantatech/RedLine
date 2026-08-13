@@ -8,6 +8,7 @@ const ROUTES = [
   { hash: '#insights', name: 'Insights' },
   { hash: '#runs', name: 'Executions' },
   { hash: '#schedules', name: 'Schedules' },
+  { hash: '#projects', name: 'Projects' },
   { hash: '#run', name: 'Run test' },
   { hash: '#create', name: 'Create test' },
 ];

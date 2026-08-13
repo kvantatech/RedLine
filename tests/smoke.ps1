@@ -103,9 +103,11 @@ $skills = @(
     'compare-core',
     # 1 on-disk but missing from this registry (reconciled 2026-07-08)
     'scope-review',
-    # 5 functional suite (2026-07-08)
+    # 6 functional suite (2026-07-08; +heal-playwright-suite registered 2026-08-13 —
+    # it shipped with the healing path (CLAUDE.md hard rule 3) but was never added
+    # here, so the count check read 35 against 36 on disk and failed permanently)
     'run-playwright-suite', 'parse-playwright-summary', 'func-verdict',
-    'verify-playwright-suite', 'triage-func-verdict',
+    'verify-playwright-suite', 'triage-func-verdict', 'heal-playwright-suite',
     # 1 functional authoring reference (2026-07-09)
     'author-resilient-playwright'
 )
@@ -114,7 +116,7 @@ foreach ($sk in $skills) {
     Test-Item (".github/skills/{0}/SKILL.md" -f $sk) ("skill: {0}" -f $sk)
 }
 
-# Sanity: count the skill dirs actually present vs the 35 expected.
+# Sanity: count the skill dirs actually present vs the registry above.
 if (Test-Path -LiteralPath $skillsRoot) {
     $present = @(Get-ChildItem -LiteralPath $skillsRoot -Directory -ErrorAction SilentlyContinue).Count
     if ($present -eq $skills.Count) {

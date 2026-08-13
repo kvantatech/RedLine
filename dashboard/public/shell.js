@@ -6,6 +6,7 @@ import { renderHome } from './home.js';
 import { renderTests } from './tests.js';
 import { renderInsights } from './insights.js';
 import { renderSchedules } from './schedules.js';
+import { renderProjects } from './projects.js';
 import { initWizard } from './app.js';
 import { scope, setScope, envLabel, envOptions } from './scope.js';
 
@@ -17,6 +18,7 @@ const NAV = [
   { hash: '#insights', label: 'Insights', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>' },
   { hash: '#runs', label: 'Executions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg>' },
   { hash: '#schedules', label: 'Schedules', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>' },
+  { hash: '#projects', label: 'Projects', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>' },
   { hash: '#run', label: 'Run test', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polygon points="6 4 19 12 6 20 6 4"/></svg>' },
   { hash: '#create', label: 'Create test', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg>' },
 ];
@@ -25,6 +27,7 @@ function currentSection() {
   const h = location.hash;
   if (h.startsWith('#tests')) return '#tests';
   if (h.startsWith('#schedules')) return '#schedules';
+  if (h.startsWith('#projects')) return '#projects';
   // Precise match: '#run' must not swallow '#runs' (Executions).
   if (h === '#run' || h.startsWith('#run/')) return '#run';
   if (routeRuns()) return '#runs';
@@ -97,6 +100,7 @@ async function route() {
     else if (sec === '#runs') await renderRuns(page);
     else if (sec === '#tests') await renderTests(page);
     else if (sec === '#schedules') await renderSchedules(page);
+    else if (sec === '#projects') await renderProjects(page);
     else if (sec === '#insights') await renderInsights(page);
     else await renderHome(page);
   } catch (e) {

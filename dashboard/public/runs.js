@@ -358,7 +358,7 @@ function healPanel(r, healDiff, healReport, href) {
     : h.graduated
       ? 'The updated test is live, but not saved permanently yet — click below to finish.'
       : auto
-        ? 'This team trusts automatic repairs, so the fix is already running — but it isn’t permanent yet. Review it below, then save it.'
+        ? 'This project trusts automatic repairs, so the fix is already running — but it isn’t permanent yet. Review it below, then save it.'
         : 'The fix is NOT live yet — it waits for your approval below.';
   const viewBtn = (a, label) => a
     ? `<button class="fbtn" data-healview="${esc(href(a.path))}" data-name="${esc(label)}">${esc(label)}</button> ` : '';

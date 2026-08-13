@@ -124,12 +124,12 @@ async function renderGlobal(page) {
 
             <div class="panelgrid">
               <div class="panel">
-                <div class="plab">Team health</div>
+                <div class="plab">Project health</div>
                 ${teams.length ? teams.map((t) =>
                   prow(`${t.team} — ${t.tests} test${t.tests === 1 ? '' : 's'}, ${t.executions} run${t.executions === 1 ? '' : 's'}${t.flakes ? `, ${t.flakes} one-off${t.flakes === 1 ? '' : 's'}` : ''}`,
                     t.passRate !== null ? `${t.passRate}%` : '—', t.passRate ?? 0,
                     t.passRate === null ? 'green' : t.passRate === 100 ? 'green' : 'red')).join('')
-                  : '<p class="why">No teams in this range.</p>'}
+                  : '<p class="why">No projects in this range.</p>'}
               </div>
               <div class="panel">
                 <div class="plab">One-off failures — red once, fine on the re-run</div>

@@ -188,7 +188,7 @@ function renderReady(zone) {
       </span>
     </div>`;
   zone.innerHTML = `
-    <h1>Let's set up performance testing for your team.</h1>
+    <h1>Let's set up performance testing for your project.</h1>
     <p class="why">In a few guided steps you'll have a real performance test running against your staging
     environment — and a clear <b>Red Line</b> that tells you when something got slower. You won't write any code:
     you describe what matters, and the RedLine agent does the technical work.</p>
@@ -202,9 +202,9 @@ function renderReady(zone) {
 
 function renderTeam(zone) {
   zone.innerHTML = `
-    <h1>What's your team called?</h1>
-    <p class="why">Everything we create — the test, its results, its alerts — is filed under your team's name.
-    Use the short name your team goes by in repositories — letters, numbers and dashes. We'll lower-case it for you.</p>
+    <h1>What's your project called?</h1>
+    <p class="why">Everything we create — the test, its results, its alerts — is filed under your project's name.
+    Use the short name the project goes by in repositories — letters, numbers and dashes. We'll lower-case it for you.</p>
     <div class="teamform">
       <input id="team" placeholder="e.g. demo-web" value="${esc(state.config.team)}" spellcheck="false" autocomplete="off" />
     </div>
@@ -252,7 +252,7 @@ function renderDescribe(zone) {
   zone.innerHTML = `
     <h1>${isApi ? 'Which API should we test?' : 'Describe the user journey.'}</h1>
     <p class="why">${isApi
-      ? 'Paste the full address of the endpoint that matters most. You probably know it from your team — it\'s the call everything else waits for.'
+      ? 'Paste the full address of the endpoint that matters most. You probably know it from your project — it\'s the call everything else waits for.'
       : 'Tell us where the journey starts and what the user does, in plain words. The agent turns each action into a measured step.'}</p>
     <div class="field">
       <label>${isApi ? 'API address' : 'Starting page'}</label>
@@ -339,7 +339,7 @@ function renderCreate(zone, stage) {
     <p class="why">Here's what the agent will build. When you press the button it writes the test,
     checks it, and gives it one careful trial run — usually a few minutes. You can watch it work.</p>
     <dl class="review">
-      <div><dt>Team</dt><dd>${esc(cfg.team)}</dd></div>
+      <div><dt>Project</dt><dd>${esc(cfg.team)}</dd></div>
       <div><dt>Environment</dt><dd>${esc(envLabel(cfg.env) || '—')}</dd></div>
       <div><dt>Test</dt><dd>${isApi ? 'API benchmark' : 'Browser journey'}</dd></div>
       <div><dt>${isApi ? 'API address' : 'Starting page'}</dt><dd>${esc(isApi ? cfg.api.url : cfg.browser.url)}</dd></div>
@@ -363,12 +363,22 @@ function renderBenchmark(zone, stage) {
       ? 'These numbers come from a real 10-round run against staging. If a future run crosses a red line, that\'s the signal something got slower.'
       : 'The agent runs your test ten times against staging and uses the results to set your red line — the number that, when crossed in the future, means something got slower and your team should look.'}</p>
     <div id="results">${r ? resultCards(r) : ''}</div>
-    <div id="agentzone"></div>`;
+    <div id="agentzone"></div>
+    ${r ? '' : `<p class="cdetail" style="margin-top:16px">
+      <button class="fbtn" id="skipbench">Skip for now</button>
+      Your test is saved either way. Without this run there's no red line yet, so the test stays
+      out of <b>Run &amp; judge</b> — come back to this step whenever you're ready.
+    </p>`}`;
   agentPanel($('#agentzone', zone), {
     kind: 'benchmark',
     startLabel: r ? 'Run it again' : 'Run the first benchmark',
     doneText: 'Benchmark complete — red line saved.',
     alreadyDone: null,
+  });
+  $('#skipbench', zone)?.addEventListener('click', async (e) => {
+    e.target.disabled = true;
+    try { setState(await api('/api/skip-benchmark', {})); goto(cursor + 1, true); }
+    catch (err) { e.target.disabled = false; $('#naverr').textContent = err.message; }
   });
 }
 
@@ -403,13 +413,18 @@ function resultCards(r) {
 function renderDone(zone) {
   const cfg = state.config;
   const profile = cfg.path === 'browser' ? 'browser-journey' : 'api-benchmark';
-  const handoff = `Hi! Our team (${cfg.team}) now has a k6 performance test, created via the RedLine perf-eng agent.\n\n- Test script:  workbench/${cfg.team}/${profile}/script.js   (in the RedLine repo)\n- Red line:     baselines/${cfg.team}.${profile}.json\n- Next step:    wire the deterministic CI gate (report-only first) into our repo —\n  see .github/actions/run-k6-action/README.md in the RedLine repo.\n  It runs the same test on every merge and reports green/red. No AI involved in the gate.\n\nQuestions → #perf-alerts on Slack.`;
+  const noBaseline = !state.results; // finished via "Skip for now" — script exists, red line doesn't
+  const handoff = `Hi! Our team (${cfg.team}) now has a k6 performance test, created via the RedLine perf-eng agent.\n\n- Test script:  workbench/${cfg.team}/${profile}/script.js   (in the RedLine repo)\n- Red line:     ${noBaseline ? 'not set yet — the first benchmark in the RedLine dashboard creates baselines/' + cfg.team + '.' + profile + '.json, and the CI gate needs it' : `baselines/${cfg.team}.${profile}.json`}\n- Next step:    wire the deterministic CI gate (report-only first) into our repo —\n  see .github/actions/run-k6-action/README.md in the RedLine repo.\n  It runs the same test on every merge and reports green/red. No AI involved in the gate.\n\nQuestions → #perf-alerts on Slack.`;
   zone.innerHTML = `
     <h1>You're set up${cfg.team ? ', ' + esc(cfg.team) : ''}.</h1>
-    <p class="why">Your team has a working performance test and a red line. From here, two things are worth doing:</p>
+    <p class="why">${noBaseline
+      ? 'Your project has a working performance test. It has no red line yet — the first benchmark sets that, and until it runs the test stays out of Run &amp; judge.'
+      : 'Your project has a working performance test and a red line. From here, two things are worth doing:'}</p>
     <ol class="dolist" style="margin-top:24px">
-      <li>Re-run the benchmark whenever you want a fresh reading — just revisit the previous step. Results and alerts for your team land in <b>#perf-alerts</b> on Slack.</li>
-      <li>Have a developer wire the automatic check into your team's CI, so every merge gets a green/red verdict. Send them this:</li>
+      <li>${noBaseline
+        ? 'Set your red line when you have a few minutes — revisit the previous step and run the first benchmark. That is what unlocks Run &amp; judge, schedules, and the CI gate.'
+        : 'Re-run the benchmark whenever you want a fresh reading — just revisit the previous step. Results and alerts for your team land in <b>#perf-alerts</b> on Slack.'}</li>
+      <li>Have a developer wire the automatic check into your project's CI, so every merge gets a green/red verdict. Send them this:</li>
     </ol>
     <div class="block">
       <div class="blabel">Message for your tech lead</div>
@@ -483,7 +498,7 @@ function renderFuncDescribe(zone) {
     your app, turns each action into a Playwright test, and checks every step passes.</p>
     <div class="note">Use your <b>staging / test environment</b> address — never production.</div>
     <div class="field">
-      <label>Your team</label>
+      <label>Your project</label>
       <input id="fteam" placeholder="e.g. demo-web" value="${esc(f.team)}" spellcheck="false" autocomplete="off" />
     </div>
     <div class="field">
@@ -521,7 +536,7 @@ function renderFuncCreate(zone, stage) {
     <p class="why">The agent opens your app in a real browser, walks the journey you described, and writes
     a Playwright test from what it sees. When it's done, your test is ready to run — right away.</p>
     <dl class="review">
-      <div><dt>Team</dt><dd>${esc(f.team)}</dd></div>
+      <div><dt>Project</dt><dd>${esc(f.team)}</dd></div>
       <div><dt>Starting page</dt><dd>${esc(f.url)}</dd></div>
       <div><dt>Journey</dt><dd>${esc(f.journey)}</dd></div>
       <div><dt>Sign-in</dt><dd>${f.login?.required ? 'yes' : 'not needed'}</dd></div>

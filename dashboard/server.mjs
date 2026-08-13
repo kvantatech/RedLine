@@ -32,6 +32,9 @@ const PROGRESS_FILE = join(ROOT, '.local', 'dashboard-progress.json');
 const ENV_FILE = join(ROOT, '.env');
 const LEDGER_FILE = join(ROOT, 'state', 'run-ledger.jsonl');
 const SCHEDULES_FILE = join(ROOT, 'state', 'schedules.json');
+const TEAM_SETTINGS_FILE = join(ROOT, 'state', 'team-settings.json');
+const TEAM_CHANNELS_FILE = join(ROOT, 'state', 'team-channels.json');
+const HEAL_POLICY_FILE = join(ROOT, 'state', 'heal-policy.json');
 const REMOTE_LEDGERS_FILE = join(ROOT, 'state', 'remote-ledgers.json');
 const REPORTS_DIR = join(ROOT, 'reports');
 const PORT = Number(process.env.PORT) || 4242;
@@ -51,7 +54,10 @@ const healInFlight = new Set(); // run_ids with a graduation in progress (double
 
 // ── config persistence ───────────────────────────────────────────────
 
-const EMPTY = { suite: '', mode: '', team: '', path: '', env: '', api: { url: '' }, browser: { url: '', journey: '' }, login: { required: false, credsSet: false }, operate: { team: '', profile: '', pickedAt: '' }, func: { team: '', url: '', journey: '', login: { required: false } } };
+// benchSkipped: the operator chose "Skip for now" on the first benchmark, so the
+// wizard may finish without a baseline. A real baseline always takes precedence
+// over the flag, so it can never mask or downgrade a red line that exists.
+const EMPTY = { suite: '', mode: '', team: '', path: '', env: '', benchSkipped: false, api: { url: '' }, browser: { url: '', journey: '' }, login: { required: false, credsSet: false }, operate: { team: '', profile: '', pickedAt: '' }, func: { team: '', url: '', journey: '', login: { required: false } } };
 
 async function loadConfig() {
   try {
@@ -65,6 +71,71 @@ async function loadConfig() {
 async function saveConfig(cfg) {
   await mkdir(dirname(PROGRESS_FILE), { recursive: true });
   await writeFile(PROGRESS_FILE, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
+}
+
+// ── per-team settings ────────────────────────────────────────────────
+// .local/dashboard-progress.json holds ONE wizard session — which team you are
+// setting up right now. It is not a home for a team's durable settings: the
+// second team you onboard would overwrite the first team's target URL. So the
+// durable half lives here, keyed by team, alongside the other state/*.json
+// per-team maps (team-channels, heal-policy, schedules).
+//
+// Shape: { "<team>": { url, env, path, login: { required, credsSet } } }
+// Secrets are NEVER stored here — credsSet is a flag; the values live in the
+// gitignored .env as PERF_USERNAME_<TEAM> / STAGING_PASSWORD_<TEAM>.
+const TEAM_SETTING = { url: '', env: '', path: '', login: { required: false, credsSet: false } };
+
+const readJson = async (file, fallback) => {
+  try { return JSON.parse(await readFile(file, 'utf8')); } catch { return fallback; }
+};
+
+async function loadTeamSettings() {
+  try {
+    const raw = JSON.parse(await readFile(TEAM_SETTINGS_FILE, 'utf8'));
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  } catch { return {}; }
+}
+
+async function saveTeamSettings(all) {
+  await mkdir(dirname(TEAM_SETTINGS_FILE), { recursive: true });
+  await writeFile(TEAM_SETTINGS_FILE, JSON.stringify(all, null, 2) + '\n', 'utf8');
+}
+
+const teamSettingOf = (all, team) => {
+  const s = (team && all[team]) || {};
+  return { ...TEAM_SETTING, ...s, login: { ...TEAM_SETTING.login, ...s.login } };
+};
+
+// Mirror the active wizard session's answers into that team's durable settings.
+async function persistTeamSetting(cfg) {
+  if (!cfg.team) return;
+  const all = await loadTeamSettings();
+  all[cfg.team] = {
+    ...teamSettingOf(all, cfg.team),
+    url: cfg.path === 'browser' ? cfg.browser.url : cfg.api.url,
+    env: cfg.env,
+    path: cfg.path,
+    login: { required: !!cfg.login.required, credsSet: !!cfg.login.credsSet },
+  };
+  await saveTeamSettings(all);
+}
+
+// Team name → env-var suffix: demo-web → DEMO_WEB. Scripts keep reading the
+// unsuffixed PERF_USERNAME / STAGING_PASSWORD; startAgent maps the active
+// team's suffixed pair onto those names, so a generated script never has to
+// know which team it belongs to and existing scripts keep working unchanged.
+const envSuffix = (team) => String(team || '').toUpperCase().replace(/[^A-Z0-9]/g, '_');
+
+// The credentials the agent should see for `team`: its own pair if set,
+// otherwise the legacy unsuffixed pair (installs that predate per-team creds).
+function credsForTeam(fileEnv, team) {
+  const sfx = envSuffix(team);
+  const user = fileEnv[`PERF_USERNAME_${sfx}`] ?? fileEnv.PERF_USERNAME;
+  const pass = fileEnv[`STAGING_PASSWORD_${sfx}`] ?? fileEnv.STAGING_PASSWORD;
+  const out = {};
+  if (user !== undefined) out.PERF_USERNAME = user;
+  if (pass !== undefined) out.STAGING_PASSWORD = pass;
+  return out;
 }
 
 // ── helpers ──────────────────────────────────────────────────────────
@@ -101,13 +172,19 @@ async function parseEnvFile() {
   }
 }
 
-async function writeCreds(username, password) {
+// Per-team credentials: each team gets its own suffixed pair so onboarding a
+// second team cannot overwrite the first team's test account. Only this team's
+// two keys are rewritten; every other line in .env is preserved verbatim.
+async function writeCreds(username, password, team) {
+  const sfx = envSuffix(team);
+  const keys = sfx ? [`PERF_USERNAME_${sfx}`, `STAGING_PASSWORD_${sfx}`] : ['PERF_USERNAME', 'STAGING_PASSWORD'];
+  const drop = new RegExp(`^\\s*(${keys.join('|')})\\s*=`);
   let lines = [];
   try {
     lines = (await readFile(ENV_FILE, 'utf8')).split('\n')
-      .filter((l) => !/^\s*(PERF_USERNAME|STAGING_PASSWORD)\s*=/.test(l) && l.trim() !== '');
+      .filter((l) => !drop.test(l) && l.trim() !== '');
   } catch {}
-  lines.push(`PERF_USERNAME=${username}`, `STAGING_PASSWORD=${password}`);
+  lines.push(`${keys[0]}=${username}`, `${keys[1]}=${password}`);
   await writeFile(ENV_FILE, lines.join('\n') + '\n', 'utf8');
 }
 
@@ -246,9 +323,17 @@ async function startAgent(kind, cfg) {
     const claudeArgs = ['-p', '--output-format', 'stream-json', '--verbose',
       '--model', 'claude-sonnet-4-6',
       '--permission-mode', 'acceptEdits', '--allowedTools', toolsFor(kind)];
+    // The team this run belongs to decides which saved test account it sees:
+    // credsForTeam maps PERF_USERNAME_<TEAM> onto the plain PERF_USERNAME the
+    // scripts read, so one team's account never leaks into another's run.
+    const fileEnv = await parseEnvFile();
+    const runTeam = kind === 'func-author' || kind === 'func-run' ? cfg.func?.team
+      : kind === 'run' || kind === 'file' || kind === 'file-override' ? cfg.operate?.team
+      : cfg.team;
+    const childEnv = { ...process.env, ...fileEnv, ...credsForTeam(fileEnv, runTeam) };
     proc = process.platform === 'win32'
-      ? spawn('cmd', ['/c', 'claude', ...claudeArgs], { cwd: ROOT, env: { ...process.env, ...(await parseEnvFile()) }, windowsHide: true })
-      : spawn('claude', claudeArgs, { cwd: ROOT, env: { ...process.env, ...(await parseEnvFile()) } });
+      ? spawn('cmd', ['/c', 'claude', ...claudeArgs], { cwd: ROOT, env: childEnv, windowsHide: true })
+      : spawn('claude', claudeArgs, { cwd: ROOT, env: childEnv });
   } catch (e) {
     job = null; // release the slot claimed above so a failed start doesn't wedge the dashboard
     throw e;
@@ -618,8 +703,12 @@ async function buildState({ fresh = false } = {}) {
     path: !!cfg.path,
     describe: describeDone(cfg),
     create: created,
-    benchmark: !!results,
-    done: !!results,
+    // A real baseline always wins; "Skip for now" only unblocks the last two
+    // stages so a first-time user can leave the wizard without paying for a
+    // 10-iteration run. The test stays out of Run & Judge until a baseline
+    // exists — compare-to-baseline has nothing to judge against without one.
+    benchmark: !!results || (created && cfg.benchSkipped),
+    done: !!results || (created && cfg.benchSkipped),
     pick: !!(op.picked && inv.some((i) => i.team === op.team && i.profile === op.profile)),
     run: !!op.current,
     outcome: outcomeDone,
@@ -717,6 +806,102 @@ const server = createServer(async (req, res) => {
       }
       const cfg = await loadConfig();
       cfg.team = team;
+      // Switching teams loads THAT team's saved settings into the session, so
+      // the wizard never shows the previous team's target URL. A team with no
+      // saved settings yet starts blank rather than inheriting a stranger's.
+      const s = teamSettingOf(await loadTeamSettings(), team);
+      cfg.path = s.path || '';
+      cfg.env = s.env || '';
+      cfg.api.url = s.path === 'api' ? s.url : '';
+      cfg.browser.url = s.path === 'browser' ? s.url : '';
+      if (s.path !== 'browser') cfg.browser.journey = '';
+      cfg.login = { required: !!s.login.required, credsSet: !!s.login.credsSet };
+      cfg.benchSkipped = false;
+      await saveConfig(cfg);
+      return send(res, 200, await buildState());
+    }
+
+    // ── settings ─────────────────────────────────────────────────────
+    // Every team the install knows about, with the settings that are actually
+    // editable here (target URL, environment, sign-in) plus the ones that live
+    // in their own files and are shown read-only (alert channels, heal policy).
+    if (url.pathname === '/api/settings' && req.method === 'GET') {
+      const [settings, perf, func, channels, heal] = await Promise.all([
+        loadTeamSettings(), inventory(), funcInventory(),
+        readJson(TEAM_CHANNELS_FILE, {}), readJson(HEAL_POLICY_FILE, {}),
+      ]);
+      const names = new Set([...Object.keys(settings), ...perf.map((i) => i.team), ...func.map((i) => i.team)]);
+      for (const k of Object.keys(channels)) if (!k.startsWith('_')) names.add(k);
+      const teams = [...names].sort().map((team) => {
+        const s = teamSettingOf(settings, team);
+        const ch = channels[team];
+        return {
+          team,
+          url: s.url, env: s.env, path: s.path, login: s.login,
+          profiles: perf.filter((i) => i.team === team).map((i) => i.profile),
+          functional: func.some((i) => i.team === team),
+          channels: !ch ? [] : (Array.isArray(ch) ? ch : [ch]).map((c) => ({
+            type: c.type || 'slack', channel: c.channel || '', secret_env: c.webhook_env || c.routing_key_env || c.api_key_env || '',
+          })),
+          heal: heal[team]?.policy || heal[team] || null,
+        };
+      });
+      // Fixed by CLAUDE.md hard rule 7 — surfaced so the page can explain why
+      // iteration/VU count is shown but not editable.
+      return send(res, 200, { teams, locked: { iterations: 10, vus: 1, executor: 'per-vu-iterations' } });
+    }
+
+    if (url.pathname === '/api/settings' && req.method === 'POST') {
+      const body = await readBody(req);
+      const team = String(body.team || '').trim().toLowerCase();
+      if (!/^[a-z0-9][a-z0-9-]{1,30}$/.test(team)) return send(res, 400, { error: 'use letters, numbers and dashes — e.g. demo-web' });
+      const all = await loadTeamSettings();
+      const cur = teamSettingOf(all, team);
+      const next = { ...cur };
+      if (body.url !== undefined) {
+        const u = String(body.url).trim();
+        if (u && !isHttpUrl(u)) return send(res, 400, { error: 'that does not look like a web address — it should start with https://' });
+        next.url = u;
+      }
+      if (body.env !== undefined) {
+        if (!ENVS.includes(body.env)) return send(res, 400, { error: `environment must be one of ${ENVS.join(', ')}` });
+        next.env = body.env;
+      }
+      if (body.path !== undefined) {
+        if (!['api', 'browser', ''].includes(body.path)) return send(res, 400, { error: 'test type must be api or browser' });
+        next.path = body.path;
+      }
+      if (body.loginRequired !== undefined) next.login = { ...next.login, required: !!body.loginRequired };
+      if (body.username && body.password) {
+        const user = String(body.username), pass = String(body.password);
+        // Same trust boundary as /api/describe: a newline would inject extra
+        // KEY=VALUE lines into .env and thus into the agent's process env.
+        if (/[\r\n]/.test(user + pass)) return send(res, 400, { error: 'the username and password cannot contain line breaks' });
+        await writeCreds(user, pass, team);
+        next.login = { ...next.login, credsSet: true };
+      }
+      all[team] = next;
+      await saveTeamSettings(all);
+      // Keep the live wizard session in step when it is editing this same team.
+      const cfg = await loadConfig();
+      if (cfg.team === team) {
+        cfg.env = next.env; cfg.path = next.path;
+        if (next.path === 'api') cfg.api.url = next.url; else if (next.path === 'browser') cfg.browser.url = next.url;
+        cfg.login = { required: !!next.login.required, credsSet: !!next.login.credsSet };
+        await saveConfig(cfg);
+      }
+      return send(res, 200, { ok: true, team, settings: next });
+    }
+
+    // "Skip for now" on the first benchmark — lets a first-time user finish the
+    // wizard without a 10-iteration run (and its model/API spend). Only valid
+    // once the script itself exists; there is nothing to defer before that.
+    if (url.pathname === '/api/skip-benchmark' && req.method === 'POST') {
+      const cfg = await loadConfig();
+      if (!(cfg.team && cfg.path && existsSync(scriptPath(cfg)))) {
+        return send(res, 400, { error: 'create the test first' });
+      }
+      cfg.benchSkipped = true;
       await saveConfig(cfg);
       return send(res, 200, await buildState());
     }
@@ -753,10 +938,11 @@ const server = createServer(async (req, res) => {
         if (/[\r\n]/.test(user + pass)) {
           return send(res, 400, { error: 'the username and password cannot contain line breaks' });
         }
-        await writeCreds(user, pass);
+        await writeCreds(user, pass, cfg.team);
         cfg.login.credsSet = true;
       }
       await saveConfig(cfg);
+      await persistTeamSetting(cfg);   // durable half — survives onboarding another team
       return send(res, 200, await buildState());
     }
 

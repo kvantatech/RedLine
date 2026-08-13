@@ -44,7 +44,7 @@ export async function renderHome(page) {
         <div class="pagehead">
           <div>
             <h1>Overview.</h1>
-            <p class="why">Everything RedLine has run for your teams. Click any run for its full story.</p>
+            <p class="why">Everything RedLine has run for your projects. Click any run for its full story.</p>
           </div>
           ${rangePill()}
         </div>
