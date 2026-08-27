@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rebuild the dashboard's IA into a Testkube-shaped shell — persistent section rail (Home · Tests · Executions · Insights), sticky top bar with Create test, Home landing page with bold KPI graphs, Tests catalog, native per-test Insights analytics, date-range filtering, new logo — per `docs/superpowers/specs/2026-07-11-dashboard-shell-design.md`.
+**Goal:** Rebuild the dashboard's IA into a section-rail shell — persistent section rail (Home · Tests · Executions · Insights), sticky top bar with Create test, Home landing page with bold KPI graphs, Tests catalog, native per-test Insights analytics, date-range filtering, new logo — per `docs/superpowers/specs/2026-07-11-dashboard-shell-design.md`.
 
 **Architecture:** New entry module `shell.js` owns rail/topbar/routing and mounts pages into `#page`. The wizard (`app.js`) becomes a focused flow at `#create` with its step-tracker as an in-card horizontal stepper. Pure aggregation lives in `agg.js` (node-tested), chart builders in `charts.js` (node-tested), date-range state in `range.js`. Everything derives from the existing `/api/runs` + `/api/state` — zero new endpoints.
 

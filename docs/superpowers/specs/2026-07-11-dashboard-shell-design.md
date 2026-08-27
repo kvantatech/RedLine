@@ -1,14 +1,13 @@
-# Dashboard shell — Testkube-shaped IA with native Insights (design spec)
+# Dashboard shell — Section-rail IA with native Insights (design spec)
 
-> Date: 2026-07-11 · Status: APPROVED (Anton, 2026-07-11) · Origin: Testkube walkthrough video
-> (youtube 7q0wR-skW8M) + approved visual mockup (`scratchpad/redline-home-mockup.html`, artifact
-> 5de19fde). Build: **impeccable** for all UI, executed via subagent-driven-development.
+> Date: 2026-07-11 · Status: APPROVED (Anton, 2026-07-11) · Origin: approved visual mockup
+> (`scratchpad/redline-home-mockup.html`, artifact 5de19fde). Build: **impeccable** for all UI, executed via subagent-driven-development.
 > Builds atop branch `feat/runs-view`.
 
 ## Context
 
 RedLine's dashboard today is a single guided wizard whose left rail is the wizard's own
-step-tracker, plus a Results view reachable at `#runs`. Anton wants Testkube's app structure —
+step-tracker, plus a Results view reachable at `#runs`. Anton wants a conventional app structure —
 a persistent left nav (**Home · Tests · Executions · Insights**), a Home landing page with bold
 KPI graphs, a Tests catalog, and a native per-test analytics view — while keeping RedLine's
 brass-and-ink identity (visual language settled in the approved mockup).
@@ -20,8 +19,8 @@ history).
 
 ## Decisions locked with Anton (2026-07-11)
 
-- Nav: **Home · Tests · Executions · Insights**. No Settings section — Testkube's "settings" is
-  per-test config, nothing app-level worth copying. Theme switcher stays an independent control
+- Nav: **Home · Tests · Executions · Insights**. No Settings section — "settings" here are
+  per-test config, nothing app-level worth a section. Theme switcher stays an independent control
   in the rail footer.
 - Rename: Workflows → **Tests**. "Total runs" → **"Total executions"**.
 - Persistent **＋ Create test** button in a sticky top bar, right of the env pill.
@@ -192,7 +191,7 @@ link.
   date-range recompute on all three pages, bar tooltips via mouse AND keyboard, empty-state
   checks, console clean. Impeccable critique pass on shell, Home, Tests, Insights before done.
 
-## Testkube coverage after this build
+## Coverage after this build
 
 In: left-nav IA, Home hero graphs + recent list, Tests catalog with history bars, executions
 drill-down, native per-test analytics with hoverable execution bars, date ranges.

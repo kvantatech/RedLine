@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add hero KPI tiles (pass-rate, red-run count, total runs with full-bleed sparklines) above the filter bar, and inline per-row history bars (last 8 runs of each team+profile) to the Results view, matching Testkube's polished dashboard aesthetic.
+**Goal:** Add hero KPI tiles (pass-rate, red-run count, total runs with full-bleed sparklines) above the filter bar, and inline per-row history bars (last 8 runs of each team+profile) to the Results view, matching a polished dashboard aesthetic.
 
 **Architecture:** Client-side aggregation over the fetched `runs` array — reuse the existing `renderTrends` grouping logic, extend `spark()` to draw filled areas, and add two new helper functions (`renderKpis` and `historyBar`). No new endpoints, no new ledger fields, nothing stored.
 
