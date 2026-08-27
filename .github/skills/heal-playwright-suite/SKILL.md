@@ -13,15 +13,15 @@ auto-healing continuously; without it a renamed button files a product-regressio
 
 ## Prompt
 
-A **graduated** suite in `envs/<team>/functional/` went corroborated-red (`sources: 2`).
+A **graduated** suite in `live/<team>/functional/` went corroborated-red (`sources: 2`).
 Before the run escalates to a product-regression draft, decide: did the **product** break,
 or did the **test** rot (selector drift, timing, new overlay)? Heal only the second kind.
 Hard cap: **2 fix rounds** — production healing is more conservative than authoring's 3.
 
 ### 0 — Copy, never touch the proven tier
 
-Copy `envs/<team>/functional/` → `workbench/<team>/functional-heal/`. Every edit below
-happens in that copy. `envs/` is written only via graduation (hard rule 3) — this skill
+Copy `live/<team>/functional/` → `drafts/<team>/functional-heal/`. Every edit below
+happens in that copy. `live/` is written only via graduation (hard rule 3) — this skill
 **proposes**; a human graduates.
 
 ### 1 — Diagnose at the live failure point
@@ -55,7 +55,7 @@ step 3, of which this is the production edition:
 2. Overlay intercepting → fix the overlay-guard fixture (delete the node in the
    init-script), not the individual test.
 3. Timing → web-first assertion with explicit `{ timeout }`; **`retries: 0` stays `0`**.
-4. Edit → run the healed copy (`npx playwright test -c workbench/<team>/functional-heal/playwright.config.ts --reporter=line`).
+4. Edit → run the healed copy (`npx playwright test -c drafts/<team>/functional-heal/playwright.config.ts --reporter=line`).
    One cycle per round.
 
 ### 3 — Prove it, then propose it (or graduate it, per policy)
@@ -65,7 +65,7 @@ step 3, of which this is the production edition:
 - Write to `reports/<run_id>/heal/` (both policies):
   - `heal-report.md` — per test: classification, what changed on the page, old → new
     locator, rounds used.
-  - `suite.diff` — `git diff --no-index envs/<team>/functional workbench/<team>/functional-heal`.
+  - `suite.diff` — `git diff --no-index live/<team>/functional drafts/<team>/functional-heal`.
 - The ledger `heal` object MUST include a **`plain`** field — 1–3 sentences for a
   non-technical reader (the dashboard shows this verbatim as the story of the heal):
   what changed on the page in everyday words ("the Start button moved into the
@@ -76,13 +76,13 @@ step 3, of which this is the production edition:
   missing or unparseable file → `ask`. Fail-safe: any doubt = `ask`).
 
 **Policy `ask` (default):**
-- **The healed copy stays in workbench.** A human reviews `suite.diff` in the dashboard
+- **The healed copy stays in drafts.** A human reviews `suite.diff` in the dashboard
   and clicks Approve — the same human gate as any proven-tier change (hard rule 10).
 - Return `HEALED` or `PARTIAL` (test-bugs healed, app-bugs listed — the workflow
   continues to triage for those).
 
 **Policy `trust` (opt-in per team):**
-- After green ×2, copy the healed suite over `envs/<team>/functional/` — this is a
+- After green ×2, copy the healed suite over `live/<team>/functional/` — this is a
   sanctioned graduation (green-verified, policy-opted), the same lifecycle moment as
   func-author's graduation step.
 - **This skill itself NEVER `git commit`s**, under either policy. The uncommitted
@@ -113,17 +113,17 @@ Bash (`npx playwright test`, `git diff`), Read, Write, Edit, playwright-test MCP
 
 ## Data
 
-- Reads: `envs/<team>/functional/` (copy source), `reports/<run_id>/` + `reports/<run_id>_confirm/` (failure evidence), `state/heal-policy.json` (ask | trust per team)
-- Writes: `workbench/<team>/functional-heal/` (the healed copy), `reports/<run_id>/heal/` (report + diff); `envs/<team>/functional/` **only** under policy `trust` after green ×2 (graduation write, never committed)
+- Reads: `live/<team>/functional/` (copy source), `reports/<run_id>/` + `reports/<run_id>_confirm/` (failure evidence), `state/heal-policy.json` (ask | trust per team)
+- Writes: `drafts/<team>/functional-heal/` (the healed copy), `reports/<run_id>/heal/` (report + diff); `live/<team>/functional/` **only** under policy `trust` after green ×2 (graduation write, never committed)
 
 ## Hard rules
 
 1. **2 rounds maximum.** Round 3 does not exist — production healing is conservative.
 2. **Never heal around an app bug.** Element genuinely gone → `NOT_HEALABLE`, escalate — a
    healed test that hides a regression is the worst outcome this skill can produce.
-3. **This skill never `git commit`s, under either policy.** `envs/` is written only as a
+3. **This skill never `git commit`s, under either policy.** `live/` is written only as a
    policy-`trust` graduation after green ×2, or (under `ask`) not at all — the healed
-   suite is a workbench proposal + diff. The commit happens later, only via an explicit
+   suite is a drafts proposal + diff. The commit happens later, only via an explicit
    human click in the dashboard (`POST /api/heal/graduate`) — see CLAUDE.md hard rule 3.
 4. `retries: 0` stays `0` — a repair that needs retries is not a repair.
 5. Triggered **only** on corroborated reds (`sources: 2`) — flakes never reach this skill
@@ -132,6 +132,6 @@ Bash (`npx playwright test`, `git diff`), Read, Write, Edit, playwright-test MCP
    behave as `ask`.
 
 ---
-Complements `verify-playwright-suite` (authoring-time, workbench drafts) — this is the
+Complements `verify-playwright-suite` (authoring-time, drafts drafts) — this is the
 proven-tier edition, one tier later in the same lifecycle. Playbook shared via
 `author-resilient-playwright`.

@@ -22,7 +22,7 @@ the offending commit.
 
 | # | Check | Intent |
 |---|-------|--------|
-| a | envs guard | DENY any staged path under `envs/*` (read-only submodules) |
+| a | live/ guard | DENY any staged path under `live/*` (read-only submodules) |
 | b | doc-consistency-check | Run the literal-string consistency checks; block on failure |
 | c | jira sign-off | DENY a `jira-create` draft that lacks the Reviewer sign-off marker (`Reviewed-by:`) |
 

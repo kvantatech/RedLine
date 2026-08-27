@@ -42,7 +42,7 @@ async function listTests() {
     const m = f.match(/^([a-z0-9-]+)\.([a-z0-9-]+)\.json$/);
     if (!m) continue;
     const [, team, profile] = m;
-    const script = ['envs', 'workbench'].map((d) => join(ROOT, d, team, profile, 'script.js')).find((p) => existsSync(p));
+    const script = ['live', 'drafts'].map((d) => join(ROOT, d, team, profile, 'script.js')).find((p) => existsSync(p));
     if (!script) continue;
     const last = runs.find((r) => r.team === team && r.profile === profile) || null;
     out.push({ team, profile, baseline: `baselines/${f}`, last: last && { run_id: last.run_id, verdict: last.verdict, recorded_at: last.recorded_at, summary: last.summary_line } });

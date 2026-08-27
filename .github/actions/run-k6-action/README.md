@@ -43,8 +43,8 @@ silently pass.
     PERF_USERNAME: ${{ secrets.PERFORMANCE_TEST_USERNAME }}
     STAGING_PASSWORD: ${{ secrets.PERFORMANCE_TEST_PASSWORD }}
   with:
-    script: envs/demo-web/api-benchmark/script.js
-    gate-config: envs/demo-web/api-benchmark/perf-gate.yaml
+    script: live/demo-web/api-benchmark/script.js
+    gate-config: live/demo-web/api-benchmark/perf-gate.yaml
 ```
 
 Example caller: [.github/workflows/perf-gate-demo-web.yml](../../workflows/perf-gate-demo-web.yml)

@@ -101,8 +101,8 @@ no perf chart points — **no regex parsing of `summary_line`** (fragile, reject
   `p95_ms`/`p95_red_ms` on every green/red k6 record, and 8 real ledger lines carry it.
   The view reuses `endpoints[]` as-is; no new `metrics{}` field, no pipeline change.
   Pre-schema thin lines (June 2026 sims) simply contribute no perf chart points.
-- **Failure artifacts:** functional suite configs (envs/redline-dashboard, workbench/
-  redline-dashboard, workbench/saucedemo-team + the spec-author authoring convention) get
+- **Failure artifacts:** functional suite configs (live/redline-dashboard, drafts/
+  redline-dashboard, drafts/saucedemo-team + the spec-author authoring convention) get
   `screenshot: 'only-on-failure'` and `trace: 'retain-on-failure'`; `run-playwright-suite`
   copies screenshots into `reports/<run_id>/artifacts/` (both envs — a screenshot doesn't
   embed auth headers). Traces keep the existing hygiene hard rule unchanged: kept under

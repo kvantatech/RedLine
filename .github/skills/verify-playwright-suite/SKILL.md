@@ -7,7 +7,7 @@
 
 ## Prompt
 
-You will verify a drafted Playwright suite in `workbench/<team>/functional/`. Hard cap:
+You will verify a drafted Playwright suite in `drafts/<team>/functional/`. Hard cap:
 **3 fix rounds**, then stop. The anti-flake playbook you apply while healing —
 locators, the overlay-guard fixture, wait strategy, failure classification — is the
 `author-resilient-playwright` skill; the fix-round steps below are its operational form.
@@ -15,7 +15,7 @@ locators, the overlay-guard fixture, wait strategy, failure classification — i
 ### 1 — Run
 
 ```
-npx playwright test -c workbench/<team>/functional/playwright.config.ts --reporter=line
+npx playwright test -c drafts/<team>/functional/playwright.config.ts --reporter=line
 ```
 
 All pass → return PASS with the summary line. Done.
@@ -68,8 +68,8 @@ Bash (`npx playwright test`), Read, Write, Edit, Playwright MCP (`browser_naviga
 
 ## Data
 
-- Reads/edits: `workbench/<team>/functional/` only — never `envs/`.
-- Writes: nothing outside the workbench suite.
+- Reads/edits: `drafts/<team>/functional/` only — never `live/`.
+- Writes: nothing outside the drafts suite.
 
 ## Hard rules
 

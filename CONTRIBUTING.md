@@ -20,7 +20,7 @@ These are architectural invariants, not preferences. PRs that break them will be
 2. **The deploy gate makes zero model calls.** `compare-core.js` stays deterministic.
 3. **Only 3 subagents** may call a model (`reviewer`, `script-author`, `spec-author`). New model calls carry the burden of proof.
 4. **Filing is human-gated.** No workflow files a ticket or alerts a team on its own.
-5. **`envs/<team>/` is the proven tier** — write only via graduation, never hand-edit in place.
+5. **`live/<team>/` is the proven tier** — write only via graduation, never hand-edit in place.
 
 ## Practical notes
 

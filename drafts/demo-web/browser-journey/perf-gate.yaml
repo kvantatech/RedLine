@@ -1,0 +1,36 @@
+# demo-web · browser-journey profile — gate thresholds
+# Source of truth: baselines/demo-web.browser-journey.json
+
+team: demo-web
+profile: browser-journey
+env: stg
+script: demo-web/browser-journey/script.js   # relative to live/
+
+thresholds:
+  - metric: demo_web_browser_login_ms
+    note: WS-Fed nav start → shell nav visible
+    p95_red_ms: 8000
+
+  - metric: browser_web_vital_fcp
+    note: First Contentful Paint — k6 built-in. Real 10-iter p95=2582ms → max(1800, 3099)=3100ms
+    p95_red_ms: 3100
+
+  - metric: browser_web_vital_lcp
+    note: Largest Contentful Paint — k6 built-in. Real 10-iter p95=3696ms → max(2500, 4435)=4450ms
+    p95_red_ms: 4450
+
+  - metric: demo_web_browser_ng15_ms
+    note: Angular 15 App click → h1 visible. Floor active (no observed data) — update after real run
+    p95_red_ms: 3000
+
+  - metric: demo_web_browser_react_ms
+    note: React App click → h1 visible. Floor active (no observed data) — update after real run
+    p95_red_ms: 3000
+
+  - metric: demo_web_browser_profile_ms
+    note: Profile button click → logout menuitem visible. Floor active (no observed data) — update after real run
+    p95_red_ms: 1500
+
+gate:
+  mode: report-only
+  exit_code_on_red: 99             # k6-native thresholds-failed code; 97 is reserved for crash/abort

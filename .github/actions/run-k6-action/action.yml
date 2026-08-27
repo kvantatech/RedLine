@@ -20,7 +20,7 @@ description: 'Deterministic k6 perf gate: run, summary-export, compare-core verd
 
 inputs:
   script:
-    description: 'Path to the k6 script (e.g. envs/demo-web/api-benchmark/script.js)'
+    description: 'Path to the k6 script (e.g. live/demo-web/api-benchmark/script.js)'
     required: true
   gate-config:
     description: 'Path to the perf-gate.yaml threshold file for this profile'

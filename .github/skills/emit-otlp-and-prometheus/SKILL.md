@@ -21,7 +21,7 @@ data; corroboration is the `corroborate-2-sources` confirmation re-run.)
    with export errors. Enable on: local VPN runs, ARC runner (PERF-101). Keep off on
    `ubuntu-latest` CI.
 
-2. **Env block** (per `envs/prod-stg-build-tests/docs/K6_LGTM_INTEGRATION_GUIDE.md`):
+2. **Env block** (per `live/prod-stg-build-tests/docs/K6_LGTM_INTEGRATION_GUIDE.md`):
 
    ```
    K6_OTEL_EXPORTER_PROTOCOL      = http/protobuf                       # k6 2.0 var name (NOT K6_OTEL_EXPORTER_TYPE)

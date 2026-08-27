@@ -98,7 +98,7 @@ Read, Write, Bash (k6 re-run via the same `run-k6-script` path) — no MCP, no m
 
 ## Data
 
-- Reads: `reports/<run_id>/verdict.json`, `envs/<team>/<profile>/script.js`, `baselines/<team>.<profile>.json`
+- Reads: `reports/<run_id>/verdict.json`, `live/<team>/<profile>/script.js`, `baselines/<team>.<profile>.json`
 - Writes: `reports/<run_id>_confirm/` (summary.json, contract.json, verdict.json)
 
 ---

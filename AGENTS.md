@@ -14,7 +14,7 @@ WORKFLOWS  →  SKILLS  →  SUBAGENTS  →  MCP  →  DATA
 | **Skill** | `.github/skills/<name>/SKILL.md` | One job: Prompt (instructions) + Tools (MCPs) + Data (files it reads/writes). Independently testable, no model judgment. |
 | **Subagent** | `.github/agents/<name>.agent.md` | A skill that **earned** a model call — justified only by (a) open-ended judgment or (b) large-context isolation. Only **3** qualify. |
 | **MCP** | `.claude/settings.json` | Outside data/tools, registered **phase-of-need** (k6 + Playwright P0 · Grafana P2 · Jira + Slack P3 · GitHub P5). |
-| **Data** | `baselines/ state/ envs/ reports/ logs/` | Baselines, the idempotency ledger, the proven tier (read-only), transient artifacts. |
+| **Data** | `baselines/ state/ live/ reports/ logs/` | Baselines, the idempotency ledger, the proven tier (read-only), transient artifacts. |
 
 **Burden-of-proof rule:** a fixed deterministic path is the default; a model call must be justified in writing.
 

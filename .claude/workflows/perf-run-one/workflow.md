@@ -27,7 +27,7 @@ deploy_sha — (deploy trigger only)
 ## Steps (recipe)
 
 1. **[DET] run-k6-script** ✅ LIVE — validate inputs (path guard, prod-gate), detect script type (HTTP vs browser), run `k6 run --summary-export`, scrub HAR on browser runs. Outputs `reports/<run_id>/summary.json`.
-   - Script path: `envs/<team>/<profile>/script.js`
+   - Script path: `live/<team>/<profile>/script.js`
    - On exit 97: write `run-error.txt`, mark FAILED, STOP
    - On any non-zero except 99: same
 
@@ -110,7 +110,7 @@ team=demo-web  profile=api-benchmark  env=stg  trigger=cron
 run_id=demo-web_api-benchmark_stg_20260609T143022Z
 
 O0: not in ledger → proceed
-O1: run-k6-script envs/demo-web/api-benchmark/script.js → exit 0, summary.json written
+O1: run-k6-script live/demo-web/api-benchmark/script.js → exit 0, summary.json written
 O2: parse-k6-json-summary → contract.json written (p95=662ms)
 O3: compare-to-baseline baselines/demo-web.api-benchmark.json
     → GET /api/config: p95=662ms ≤ red(900ms)? YES → green

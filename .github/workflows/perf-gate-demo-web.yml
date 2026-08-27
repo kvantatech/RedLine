@@ -50,8 +50,8 @@ jobs:
           PERF_USERNAME: ${{ secrets.PERF_TEST_USERNAME }}
           STAGING_PASSWORD: ${{ secrets.PERF_TEST_PASSWORD }}
         with:
-          script: envs/demo-web/${{ inputs.profile }}/script.js
-          gate-config: envs/demo-web/${{ inputs.profile }}/perf-gate.yaml
+          script: live/demo-web/${{ inputs.profile }}/script.js
+          gate-config: live/demo-web/${{ inputs.profile }}/perf-gate.yaml
 
       - name: Upload run artifacts
         if: always()

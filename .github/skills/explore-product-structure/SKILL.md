@@ -7,7 +7,7 @@
 Drive the product UI with Playwright to enumerate the pages/flows a load test
 should cover and capture a HAR of representative traffic.
 
-- Input: an environment from `envs/` (read-only) plus a target product area.
+- Input: an environment from `live/` (read-only) plus a target product area.
 - Output: a page/endpoint map (pages, flows, request URLs) that feeds the
   script-author step, alongside the raw HAR capture.
 
@@ -17,12 +17,12 @@ This is grounded exploration — observe the real UI, do not invent endpoints.
 Playwright MCP
 
 ## Data
-- Reads: `envs/` (read-only — environment definitions / scripts)
+- Reads: `live/` (read-only — environment definitions / scripts)
 - Writes: `reports/` (HAR capture + page/endpoint map)
 
 ## Notes
 Activation: P4. First half is grounded model exploration; its output feeds
-`verify-k6-script` / the script-author step. Read-only against `envs/` — this
+`verify-k6-script` / the script-author step. Read-only against `live/` — this
 skill never mutates environment definitions. Any captured HAR MUST pass through
 `scrub-har-secrets` before it is persisted or fed to a model.
 

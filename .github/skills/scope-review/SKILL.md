@@ -9,7 +9,7 @@ After `script-author` drafts a script and before `verify-k6-script` runs, stop a
 test scope to the human. Do not proceed until the human explicitly confirms or redirects.
 
 **Inputs:**
-- `script_path` — path to the drafted script under `workbench/<team>/<profile>/script.js`
+- `script_path` — path to the drafted script under `drafts/<team>/<profile>/script.js`
 - `team` — team name (e.g. `demo-web`)
 - `profile` — test profile (e.g. `benchmark`)
 - `test_type` — **`api` or `browser`** — asked before exploration begins; determines tooling and script shape
@@ -43,7 +43,7 @@ Format as a short, scannable brief — not a wall of text.
 - `Read` — read the drafted script
 
 ## Data
-- Reads: `workbench/<team>/<profile>/script.js`
+- Reads: `drafts/<team>/<profile>/script.js`
 - Writes: nothing (gate only)
 
 ---

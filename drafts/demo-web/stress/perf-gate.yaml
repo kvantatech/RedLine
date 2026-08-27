@@ -1,0 +1,16 @@
+team: demo-web
+profile: stress
+script: demo-web/stress/script.js   # relative to live/
+gate_mode: report-only             # ALWAYS report-only — stress is on-demand; intentionally exceeds limits
+trigger: on-demand
+environments:
+  - stg                            # staging only — intentionally breaks things, never prod
+
+thresholds:
+  - metric: demo_web_config_health
+    p95_ms: 3000
+    note: Intentionally loose — stress is expected to fail at peak. Human reads the trend curve to find the ceiling.
+
+  - metric: http_req_failed
+    rate_max: 0.20
+    note: Up to 20% errors allowed — stress pushes past the breaking point by design

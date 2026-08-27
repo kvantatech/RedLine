@@ -6,11 +6,11 @@
 ## Prompt
 Open a DRAFT pull request carrying the authored or leveled-up k6 script.
 
-- Input: the verified script (graduated from `workbench/<team>/<profile>/`) plus context
+- Input: the verified script (graduated from `drafts/<team>/<profile>/`) plus context
   (environment, what changed).
 - **Target: the team's upstream repo** (the "shelf" — e.g. `ui-deployments`), branch
-  `perf-author/<team>-<profile>`. **Never** the agent repo, **never** inside `envs/*`. On merge, the
-  source leaves the factory `workbench/` (the team repo becomes the home-of-record).
+  `perf-author/<team>-<profile>`. **Never** the agent repo, **never** inside `live/*`. On merge, the
+  source leaves the factory `drafts/` (the team repo becomes the home-of-record).
 - Output: a DRAFT PR with a clear title and body summarizing the script.
 
 NEVER commit to main; NEVER auto-merge. A human reviews and merges.
@@ -23,8 +23,8 @@ NEVER commit to main; NEVER auto-merge. A human reviews and merges.
 GitHub MCP
 
 ## Data
-- Reads: the graduated script (from `workbench/<team>/<profile>/`); `envs/` (read-only, for PR context — which environment the script targets)
-- Writes: a DRAFT PR in the **team's upstream repo** (not this agent repo; not `envs/*`)
+- Reads: the graduated script (from `drafts/<team>/<profile>/`); `live/` (read-only, for PR context — which environment the script targets)
+- Writes: a DRAFT PR in the **team's upstream repo** (not this agent repo; not `live/*`)
 
 ## Notes
 Activation: P5. Workflows are proposals only — no irreversible action mid-run.

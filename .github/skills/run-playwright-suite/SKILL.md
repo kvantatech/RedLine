@@ -12,7 +12,7 @@ You will execute a single Playwright functional suite and save its output. Follo
 ### 1 — Validate inputs
 
 Required inputs (caller must supply all three):
-- `suite_path` — e.g. `envs/redline-dashboard/functional` or `workbench/saucedemo-team/functional` (a directory containing `playwright.config.ts` and `tests/`)
+- `suite_path` — e.g. `live/redline-dashboard/functional` or `drafts/saucedemo-team/functional` (a directory containing `playwright.config.ts` and `tests/`)
 - `run_id` — unique string, e.g. `redline-dashboard_functional_local_20260708T143022Z`
 - `env` — `local` or `stg` (case-insensitive)
 
@@ -20,16 +20,16 @@ Optional:
 - `extra_args` — extra CLI args (e.g. `--last-failed`, passed by corroborate-2-sources)
 
 Reject and STOP if any of the following are true:
-- `suite_path` does not start with `envs/` or `workbench/` (absolute or `../` paths are forbidden)
+- `suite_path` does not start with `live/` or `drafts/` (absolute or `../` paths are forbidden)
 - `<suite_path>/playwright.config.ts` does not exist
 - `env` is `prod` — **functional suites NEVER run on PROD (v1 hard rule — no carve-out, stricter than k6)**
 - `run_id` is empty or missing
 
-**`workbench/` is a valid, first-class run location — not a fallback for a missing feature.**
-A freshly-authored suite that never gets committed to `envs/` is still a real, runnable suite;
-"graduating" to `envs/` only matters for putting a script under source control / CI, and is
-never required just to see whether a test passes. Prefer `envs/<team>/functional` when it
-exists (it's the reviewed, committed version); otherwise run `workbench/<team>/functional`
+**`drafts/` is a valid, first-class run location — not a fallback for a missing feature.**
+A freshly-authored suite that never gets committed to `live/` is still a real, runnable suite;
+"graduating" to `live/` only matters for putting a script under source control / CI, and is
+never required just to see whether a test passes. Prefer `live/<team>/functional` when it
+exists (it's the reviewed, committed version); otherwise run `drafts/<team>/functional`
 directly — the caller decides which path to pass.
 
 ### 2 — Prepare the output directory
@@ -85,7 +85,7 @@ Bash (`npx playwright test`), Read, Write — no MCP, no model calls.
 
 ## Data
 
-- Reads: `envs/<team>/functional/` or `workbench/<team>/functional/` (config + specs)
+- Reads: `live/<team>/functional/` or `drafts/<team>/functional/` (config + specs)
 - Writes: `reports/<run_id>/results.json`, `reports/<run_id>/run-error.txt`, `reports/<run_id>/artifacts/`, `reports/<run_id>/traces/`, `reports/<run_id>/trace-note.txt`
 
 ## Hard rules

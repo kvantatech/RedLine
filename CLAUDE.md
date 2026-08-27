@@ -35,7 +35,7 @@ WORKFLOWS  (.claude/workflows/<name>/)        ← deterministic recipes; the con
                         └── read / write DATA
                                 baselines/<team>.<profile>.json  ← red p95 thresholds (green/red only — amber removed)
                                 state/run-ledger.jsonl           ← idempotency; de-dupe key per deploy
-                                envs/*                           ← proven tier (read-only; write via graduation)
+                                live/*                           ← proven tier (read-only; write via graduation)
                                 reports/ · logs/                 ← transient artifacts (gitignored)
 ```
 
@@ -52,8 +52,8 @@ by adding folders (the onboarding wizard in `dashboard/` does this for you).
 
 A team's tests move through two tiers:
 
-- `workbench/<team>/<profile>/script.js` — **draft** tier where `perf-author` writes a new script.
-- `envs/<team>/<profile>/script.js` — **proven** tier a script graduates to once it runs green.
+- `drafts/<team>/<profile>/script.js` — **draft** tier where `perf-author` writes a new script.
+- `live/<team>/<profile>/script.js` — **proven** tier a script graduates to once it runs green.
   `run-k6-script` reads from here.
 - `baselines/<team>.<profile>.json` — that team+profile's red/green threshold.
 
@@ -75,7 +75,7 @@ enforce, `compare-core` verdict parity, 0 model calls).
 
 1. **No Jira is filed without a Reviewer sign-off — or an explicit, per-draft human override.** Even when `compare-to-baseline` says "red", the draft routes through the `reviewer` subagent (independent context, dual-pass + ≥2-source gate) before any `file-perf-regression-jira` call. A human may overrule a reviewer REJECT only via the dashboard's "Create a ticket anyway" confirmation (`human_override=true`); the override is permanently recorded in the ticket text and the ledger line, relaxes Gate 2 only, and is never set by a workflow.
 2. **v1.0 is STG-only.** PROD is allowed **only** for a **1-VU `k6-profile-benchmark`** run, and **only** with a one-time operator-approval token present (`DEC-prod-scripts` Option B). Heavy profiles (load/stress/spike/soak) are always blocked on PROD. Everyday verification runs against the STG mirror. Functional (Playwright) suites never run on PROD in v1 — no carve-out.
-3. **`envs/<team>/` is the proven tier — write only via graduation.** Two sanctioned graduation paths: `perf-author`/`func-author` (new scripts, after green verification) and `heal-playwright-suite` (healed suites, after green ×2, per a team's `ask`/`trust` policy in `state/heal-policy.json`). The agent never hand-edits a proven script in place. **No workflow or unattended agent step ever runs `git commit`** — that line holds absolutely. The one narrow exception: `POST /api/heal/graduate`, fired only by an explicit human click in the dashboard (the target audience is non-technical — a manual `git commit` step is not a real option for them), commits *only* the specific healed suite files, with a message naming the run. That endpoint is deterministic server code, not a model call, and the human click is the same kind of explicit per-action gate as the existing "File the ticket" and "Create a ticket anyway" buttons — it does not relax rule 1 or rule 10. If a company pins a team's `envs/<team>/` to an external repo as a git submodule, that submodule is READ-ONLY (pull/update only, propose changes as draft PRs upstream) — but a plain in-repo `envs/<team>/` folder is writable through the normal graduation paths.
+3. **`live/<team>/` is the proven tier — write only via graduation.** Two sanctioned graduation paths: `perf-author`/`func-author` (new scripts, after green verification) and `heal-playwright-suite` (healed suites, after green ×2, per a team's `ask`/`trust` policy in `state/heal-policy.json`). The agent never hand-edits a proven script in place. **No workflow or unattended agent step ever runs `git commit`** — that line holds absolutely. The one narrow exception: `POST /api/heal/graduate`, fired only by an explicit human click in the dashboard (the target audience is non-technical — a manual `git commit` step is not a real option for them), commits *only* the specific healed suite files, with a message naming the run. That endpoint is deterministic server code, not a model call, and the human click is the same kind of explicit per-action gate as the existing "File the ticket" and "Create a ticket anyway" buttons — it does not relax rule 1 or rule 10. If a company pins a team's `live/<team>/` to an external repo as a git submodule, that submodule is READ-ONLY (pull/update only, propose changes as draft PRs upstream) — but a plain in-repo `live/<team>/` folder is writable through the normal graduation paths.
 4. **Workflow-first; a model call must be justified in writing.** The default is a deterministic skill. A step becomes a subagent only if it earns it by (a) open-ended judgment or (b) large-context isolation — with a one-line justification. Burden of proof is on autonomy.
 5. **p95 everywhere.** All agent latency math standardises on the 95th percentile.
 6. **Two verdicts only: green | red.** Amber is removed. Each baseline metric has a single `p95_red_ms` threshold. `p95 ≤ p95_red_ms` → green; `p95 > p95_red_ms` → red. No in-between. Functional verdict: all tests pass = green; any corroborated failure = red — same two verdicts, pass/fail edition.

@@ -19,7 +19,7 @@ Zero dependencies — one Node server, three static files. No `npm install`.
 4. **What to test** — the staging URL; for browser tests, the journey described in plain words;
    optional staging test account (saved only to the gitignored `.env`, never committed)
 5. **Create the test** — one click: the wizard spawns **Claude Code headlessly** (`claude -p`),
-   which authors `workbench/<team>/<profile>/script.js` following the demo-web conventions,
+   which authors `drafts/<team>/<profile>/script.js` following the demo-web conventions,
    validates it, and smoke-runs it — activity streamed live to the browser
 6. **First results** — one click: a real 10-iteration run, then the red line is seeded into
    `baselines/<team>.<profile>.json` (`max(1000, observed×1.2)` for API) and shown as friendly cards
@@ -49,7 +49,7 @@ script and a baseline, freshest verdict shown) → **Run & judge** → **The ver
 Each headless run is sandboxed by `--allowedTools`, per kind:
 
 - **author / benchmark** — file tools + `Bash(k6 *)` + `Bash(node *)` + k6 MCP validate/docs —
-  no git, no Jira, no Slack, no GitHub; writes scoped to `workbench/<team>/<profile>/` and
+  no git, no Jira, no Slack, no GitHub; writes scoped to `drafts/<team>/<profile>/` and
   `baselines/<team>.<profile>.json`
 - **run** — the same, plus `Task` (to spawn the independent reviewer subagent); may write
   `reports/<run_id>/` and append to `state/run-ledger.jsonl`; never files anything
