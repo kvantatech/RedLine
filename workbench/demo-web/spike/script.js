@@ -5,11 +5,21 @@
  * Trigger:     Every prod deploy — pre-promote gate (staging only)
  * Environment: Staging only — never run against prod
  *
- * Shape: idle → 50 VUs in 30s → hold 2min → back to 0 in 30s
+ * Shape: idle → 50 iterations/sec in 30s → hold 2min → back to 0 in 30s
  * Tests auto-scaling response and recovery under sudden burst traffic.
  *
  * Baseline: baselines/demo-web.spike.json
  * Gate:     envs/demo-web/spike/perf-gate.yaml
+ *
+ * Open model: stage targets are ARRIVAL RATE (iterations/sec), not concurrent VUs.
+ * Under a closed model (ramping-vus) the applied load falls as the system slows --
+ * the test eases off exactly when it should be pushing hardest, so a degrading
+ * system is measured more gently than a healthy one. Here VUs are a resource k6
+ * allocates to sustain the rate, not the load itself.
+ *
+ * NOTE: rates carried over from the previous VU targets and NOT yet calibrated.
+ * Derive them from the api-benchmark profile's measured service time --
+ * sustainable rate ~= concurrency / iteration duration (Little's Law).
  */
 
 import http from "k6/http";
@@ -36,11 +46,13 @@ const AUTHENTICATE_URL = `${LOGIN_URL}/authenticate`;
 export const options = {
   scenarios: {
     "spike": {
-      executor: "ramping-vus",
+      executor: "ramping-arrival-rate",
+      startRate: 0, timeUnit: "1s",
+      preAllocatedVUs: 100, maxVUs: 400,
       stages: [
         { duration: "10s", target: 0  },   // idle baseline
-        { duration: "30s", target: 50 },   // spike — rapid ramp
-        { duration: "2m",  target: 50 },   // hold at peak
+        { duration: "30s", target: 50 },   // spike — rapid ramp to 50 iterations/sec
+        { duration: "2m",  target: 50 },   // hold at peak arrival rate
         { duration: "30s", target: 0  },   // recovery
       ],
     },

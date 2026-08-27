@@ -5,11 +5,21 @@
  * Trigger:     Every prod deploy — pre-promote gate (staging only)
  * Environment: Staging only — never run against prod
  *
- * Shape: ramp 0→10 VUs over 5min, hold 10min, ramp down 5min
+ * Shape: ramp 0→10 iterations/sec over 5min, hold 10min, ramp down 5min
  * Measures: GET /api/config p95 under expected concurrency
  *
  * Baseline: baselines/demo-web.load.json
  * Gate:     envs/demo-web/load/perf-gate.yaml
+ *
+ * Open model: stage targets are ARRIVAL RATE (iterations/sec), not concurrent VUs.
+ * Under a closed model (ramping-vus) the applied load falls as the system slows --
+ * the test eases off exactly when it should be pushing hardest, so a degrading
+ * system is measured more gently than a healthy one. Here VUs are a resource k6
+ * allocates to sustain the rate, not the load itself.
+ *
+ * NOTE: rates carried over from the previous VU targets and NOT yet calibrated.
+ * Derive them from the api-benchmark profile's measured service time --
+ * sustainable rate ~= concurrency / iteration duration (Little's Law).
  */
 
 import http from "k6/http";
@@ -36,10 +46,12 @@ const AUTHENTICATE_URL = `${LOGIN_URL}/authenticate`;
 export const options = {
   scenarios: {
     "load": {
-      executor: "ramping-vus",
+      executor: "ramping-arrival-rate",
+      startRate: 0, timeUnit: "1s",
+      preAllocatedVUs: 30, maxVUs: 100,
       stages: [
-        { duration: "5m",  target: 10 },   // ramp up
-        { duration: "10m", target: 10 },   // hold at expected concurrency
+        { duration: "5m",  target: 10 },   // ramp to 10 iterations/sec
+        { duration: "10m", target: 10 },   // hold at expected arrival rate
         { duration: "5m",  target: 0  },   // ramp down
       ],
     },

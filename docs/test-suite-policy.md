@@ -31,14 +31,23 @@ other profile on prod. Everyday verification runs against the STG mirror.
 
 ## Profile definitions
 
-| Profile | VUs | Duration / shape | Purpose |
+| Profile | Concurrency / arrival rate | Duration / shape | Purpose |
 |---|---|---|---|
-| **benchmark** | 1 | 10 iterations | Latency baseline; p95 meaningful at 10 samples; prod-safe with operator token |
-| **browser** | 1 | 10 iterations (full journey) | Core Web Vitals + UX journey; p95 meaningful at 10 samples; staging only |
-| **load** | ramp 0→N→0 | 5min ramp + 10min hold + 5min ramp-down | Expected concurrency — production readiness gate |
-| **spike** | ramp 0→peak in 30s → back down | ~5min total | Auto-scaling + recovery; surge simulation |
-| **soak** | 50–80% of load-test VUs | 1–4 hours sustained | Memory leaks, connection exhaustion, time-dependent bugs |
-| **stress** | load → 2–3× load until failure | Until errors/latency degrades | Ceiling + failure mode discovery |
+| **benchmark** | closed loop, 1 VU | 10 iterations | Latency baseline; p95 meaningful at 10 samples; prod-safe with operator token |
+| **browser** | closed loop, 1 VU | 10 iterations (full journey) | Core Web Vitals + UX journey; p95 meaningful at 10 samples; staging only |
+| **load** | open model — ramp 0→N→0 iterations/sec | 5min ramp + 10min hold + 5min ramp-down | Expected concurrency — production readiness gate |
+| **spike** | open model — ramp 0→peak iterations/sec in 30s → back down | ~5min total | Auto-scaling + recovery; surge simulation |
+| **soak** | open model — 50–80% of the load-test arrival rate | 1–4 hours sustained | Memory leaks, connection exhaustion, time-dependent bugs |
+| **stress** | open model — load rate → 2–4× until failure | Until errors/latency degrades | Ceiling + failure mode discovery |
+
+### Why the load family is open-model and the benchmark family is not
+
+The executor follows the question being asked.
+
+- **benchmark / browser** ask *"how long does this operation take with nothing competing?"* — that is **service time**. One VU, closed loop. An open model here would queue requests and measure queueing delay instead of the operation.
+- **load / spike / soak / stress** ask *"how does the system behave as traffic arrives?"* Real arrivals are independent of the server's readiness. Under a closed model the applied load **falls as latency rises**, so the test withdraws pressure exactly when the system is failing — a stress test built this way finds where the system stops speeding up, not where it breaks.
+
+Arrival rates should be calibrated from the benchmark profile's measured service time rather than guessed.
 
 ## Gate mode progression
 
