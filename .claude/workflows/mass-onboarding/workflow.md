@@ -11,7 +11,7 @@ one leveled-up STG script per team delivered as a **DRAFT PR**. Prompt patterns 
 worked are recorded for reuse on the next team. **A human reviews + merges per team.**
 
 **Fleet = the teams you configure.** The fan-out iterates whatever teams are defined for this
-run (passed in as a team list, or discovered from existing `workbench/<team>/` folders and
+run (passed in as a team list, or discovered from existing `drafts/<team>/` folders and
 `baselines/<team>.*` entries). Some teams have several surfaces (e.g. a product with four
 sub-apps) — model each surface as its own team slug. The benchmark profile is authored first,
 `env=stg` for every cell.
@@ -36,7 +36,7 @@ sub-apps) — model each surface as its own team slug. The benchmark profile is 
 - **Secret gate [DET]:** inherited from each `perf-author` cell — `scrub-har-secrets` MUST
   complete before any HAR artifact is persisted.
 - **PR gate [DET]:** every cell ends at `open-draft-pr` — a **draft** PR on branch
-  `perf-author/<team>-<profile>`, never `main`, never inside `envs/*`.
+  `perf-author/<team>-<profile>`, never `main`, never inside `live/*`.
   **A human reviews + merges per team.** This workflow produces **proposals only**.
 - **Caps:** honor the fleet caps — **≤16 concurrent, ≤1000 agents/run**; **no mid-run human
   input** (human merge is a workflow boundary, after).

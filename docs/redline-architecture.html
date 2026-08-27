@@ -314,7 +314,7 @@ const L = [
   { id:"data", name:"Data", role:"the state everything reads and writes", rail:"var(--red)", nodes:[
     { id:"baselines", label:"baselines/", kind:"", path:"baselines/<team>.<profile>.json", desc:"The red line per team + profile — a single p95_red_ms threshold. This is what green/red is measured against.", meta:{ Shape:"green/red only — no amber" } },
     { id:"ledger", label:"run-ledger.jsonl", kind:"core", path:"state/run-ledger.jsonl", desc:"Every run, ever — the single source of truth the dashboard, the de-dupe gate, and the verdict views all read. Append-only JSONL, schema v1.", meta:{ Role:"SSOT + idempotency key" } },
-    { id:"envs", label:"envs/", kind:"", path:"envs/<team>/<profile>/", desc:"The proven tier — scripts land here only by graduating from workbench/ after they run green. Written via graduation, never hand-edited in place.", meta:{ Rule:"write only via perf-author graduation" } },
+    { id:"live", label:"live/", kind:"", path:"live/<team>/<profile>/", desc:"The proven tier — scripts land here only by graduating from drafts/ after they run green. Written via graduation, never hand-edited in place.", meta:{ Rule:"write only via perf-author graduation" } },
     { id:"reports", label:"reports/ · logs/", kind:"group", path:"reports/ · logs/", desc:"Transient per-run artifacts — the k6 summary, the contract, the Jira draft, milestone logs. Gitignored.", meta:{ State:"transient, gitignored" } },
   ]},
 ];

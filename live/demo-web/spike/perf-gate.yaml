@@ -1,0 +1,16 @@
+team: demo-web
+profile: spike
+script: demo-web/spike/script.js   # relative to live/
+gate_mode: report-only            # promote to enforce after 2-week burn-in (see docs/test-suite-policy.md)
+trigger: every-prod-deploy-pre-promote
+environments:
+  - stg                           # staging only — spike hits real infra scaling
+
+thresholds:
+  - metric: demo_web_config_health
+    p95_ms: 1350
+    note: Spike allows 1.5× the load-test threshold (burst conditions expected)
+
+  - metric: http_req_failed
+    rate_max: 0.05
+    note: Up to 5% errors tolerated during ramp (infrastructure catching up)

@@ -8,11 +8,11 @@
 Confirm an authored k6 script actually validates and runs before it ships.
 
 **Inputs:**
-- `script_path` — path to the in-flight script, always under `workbench/<team>/<profile>/script.js`
+- `script_path` — path to the in-flight script, always under `drafts/<team>/<profile>/script.js`
 - `env_vars` — map of env vars to pass (credentials, BASE_URL, etc.) — never hardcoded in the script
 
 **Hard rules (read before doing anything):**
-1. `script_path` MUST be under `workbench/` — refuse any path outside it (that is `run-k6-script`'s job)
+1. `script_path` MUST be under `drafts/` — refuse any path outside it (that is `run-k6-script`'s job)
 2. Cap fix rounds at **3** — if it still fails after round 3, report FAIL and stop; never loop forever
 3. A non-zero exit code is a FAIL — never swallow it (99 = threshold breach, 97 = crash/abort; both fail verify)
 4. Never write credentials or secrets into the script file
@@ -81,7 +81,7 @@ After diagnosis:
 Write results to `reports/verify-<team>-<profile>.txt`:
 ```
 VERDICT: PASS | FAIL
-script:  workbench/<team>/<profile>/script.js
+script:  drafts/<team>/<profile>/script.js
 rounds:  <n>
 validate: PASS | FAIL
 smoke:    PASS | FAIL — exit <code>
@@ -93,9 +93,9 @@ Return the verdict to the caller.
 
 ---
 
-> **Script-root:** this skill **may run `workbench/**` scripts** — that is the factory incubation
+> **Script-root:** this skill **may run `drafts/**` scripts** — that is the factory incubation
 > path where new scripts are proven before graduating. The operational skill `run-k6-script` stays
-> `envs/`-only (proven/merged scripts only). See planning `agent/DELIVERY-MODEL.md` §2.
+> `live/`-only (proven/merged scripts only). See planning `agent/DELIVERY-MODEL.md` §2.
 
 ## Tools
 - `mcp__k6__validate_script` — syntax + API check, no network
@@ -106,8 +106,8 @@ Return the verdict to the caller.
 - `Bash` — `k6 run <path>` for browser scripts (mcp__k6__run_script cannot run them)
 
 ## Data
-- Reads: `workbench/<team>/<profile>/script.js`
-- Writes: `reports/verify-<team>-<profile>.txt`; may edit `workbench/<team>/<profile>/script.js` during fix loop
+- Reads: `drafts/<team>/<profile>/script.js`
+- Writes: `reports/verify-<team>-<profile>.txt`; may edit `drafts/<team>/<profile>/script.js` during fix loop
 
 ---
 Frozen skill registry: `AGENTS.md` in this repo

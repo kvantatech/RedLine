@@ -19,14 +19,14 @@ model call grounded in live tools. `[MODEL bounded]` = hard round limit. `[HUMAN
    async/loading/redirect states
 2. [DET] `scrub-har-secrets` — only if a HAR was captured during exploration
 3. [MODEL] ★ `spec-author` (SUBAGENT) — generate `playwright.config.ts` (retries: 0,
-   webServer) + `tests/*.spec.ts` from the inventory → `workbench/<team>/functional/`
+   webServer) + `tests/*.spec.ts` from the inventory → `drafts/<team>/functional/`
 3a. [HUMAN] `scope-review` — agent presents flows covered, exclusions, auth handling,
    open questions; human confirms or redirects. **No verify rounds are spent until scope
    is approved.**
 4. [MODEL bounded] `verify-playwright-suite` — run → corroborate failures → fix (≤3 rounds;
    app bugs stop the loop)
-5. [DET] `graduate-script` — copy proven `workbench/<team>/functional/` →
-   `envs/<team>/functional/`; extend the pre-commit `envs/` allow-list if needed.
+5. [DET] `graduate-script` — copy proven `drafts/<team>/functional/` →
+   `live/<team>/functional/`; extend the pre-commit `live/` allow-list if needed.
    **Building phase only** — replaced by `open-draft-pr` when GitHub MCP (P5) is wired.
 6. [DET] `open-draft-pr` — P5+; skipped in building phase (graduation IS delivery)
 

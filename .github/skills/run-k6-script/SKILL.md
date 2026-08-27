@@ -17,8 +17,8 @@ Required inputs (caller must supply all three):
 - `env` — `stg` or `prod` (case-insensitive)
 
 Reject and STOP if any of the following are true:
-- `script_path` does not start with `envs/` (absolute or `../` paths are forbidden)
-- The resolved file does not exist under the `envs/` directory
+- `script_path` does not start with `live/` (absolute or `../` paths are forbidden)
+- The resolved file does not exist under the `live/` directory
 - `env` is `prod` AND the script is not a `benchmark` profile (1-VU benchmark is the only prod-allowed profile — check the filename for `benchmark` or check the caller's profile field)
 - `run_id` is empty or missing
 
@@ -113,7 +113,7 @@ Return a summary object:
 
 ## Data
 
-- **Reads:** `envs/<team>/<script>.js` (the test script; a plain in-repo folder by default, or a git submodule if the team is pinned to an external repo)
+- **Reads:** `live/<team>/<script>.js` (the test script; a plain in-repo folder by default, or a git submodule if the team is pinned to an external repo)
 - **Writes:**
   - `reports/<run_id>/summary.json` — raw k6 JSON summary (primary output)
   - `reports/<run_id>/run-error.txt` — stderr on fatal exit (only on FAILED)
@@ -124,10 +124,10 @@ Return a summary object:
 
 ## Hard rules
 
-1. **REFUSE any `script_path` outside `envs/`** — no exceptions, no relative traversals. This is the
+1. **REFUSE any `script_path` outside `live/`** — no exceptions, no relative traversals. This is the
    operational + gate path, which runs only **proven/merged** scripts. In-flight authoring against a
-   `workbench/**` script is a different path owned by `verify-k6-script` (see planning
-   `agent/DELIVERY-MODEL.md` §2) — `run-k6-script` never runs a workbench script.
+   `drafts/**` script is a different path owned by `verify-k6-script` (see planning
+   `agent/DELIVERY-MODEL.md` §2) — `run-k6-script` never runs a drafts script.
 2. **Never retain the raw `.har` from any browser run.** At P4+ pass it through `scrub-har-secrets` (save scrubbed, delete raw). At P1–P3 delete the raw HAR unconditionally — no raw HAR may persist on disk at any phase.
 3. **Exit code 97 = FAIL** — never treat a k6 abort as a successful (even threshold-failing) run.
 4. **p95 is the percentile everywhere** — do not report or act on p50/p99 as the primary metric.

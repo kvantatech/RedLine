@@ -23,8 +23,8 @@ In `run-existing` mode both authoring steps and the type question are skipped.
 4a. [HUMAN] `scope-review` — agent presents endpoints, exclusions, auth placement, metrics; human confirms or redirects
 5. [DET] `apply-ws2-conventions` — tags, Prometheus output, exit-code checklist
 6. [MODEL bounded] `verify-k6-script` — validate → smoke run → fix (bounded rounds)
-6b. [DET] `graduate-script` — copy proven `workbench/<team>/<profile>/` → `envs/<team>/<profile>/`; update pre-commit allow-list if needed. **Building phase only:** when GitHub MCP (P5) is wired this step is replaced by `open-draft-pr` targeting the team's upstream repo.
-7. [DET] `open-draft-pr` — open PR against team's upstream repo (P5+); in building phase, graduation to envs/ (step 6b) IS the delivery — skip this step until GitHub MCP is wired
+6b. [DET] `graduate-script` — copy proven `drafts/<team>/<profile>/` → `live/<team>/<profile>/`; update pre-commit allow-list if needed. **Building phase only:** when GitHub MCP (P5) is wired this step is replaced by `open-draft-pr` targeting the team's upstream repo.
+7. [DET] `open-draft-pr` — open PR against team's upstream repo (P5+); in building phase, graduation to live/ (step 6b) IS the delivery — skip this step until GitHub MCP is wired
 
 ## Branching / gates
 

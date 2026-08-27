@@ -129,8 +129,8 @@ const checks = {
       : { pass: false, detail: `k6 ${m ? 'v' + m.slice(1, 4).join('.') : '(unknown version)'} found — version 2.0 or newer is required` };
   },
   async submodules() {
-    const ok = ['workbench', 'envs', 'baselines'].every((d) => existsSync(join(ROOT, d)));
-    return { pass: ok, detail: ok ? 'workbench/, envs/, baselines/ — all present' : 'some project folders are missing — re-download or re-clone RedLine' };
+    const ok = ['drafts', 'live', 'baselines'].every((d) => existsSync(join(ROOT, d)));
+    return { pass: ok, detail: ok ? 'drafts/, live/, baselines/ — all present' : 'some project folders are missing — re-download or re-clone RedLine' };
   },
 };
 
@@ -218,14 +218,14 @@ async function startAgent(kind, cfg) {
   let prompt, proc;
   try {
     if (kind === 'author') {
-      await mkdir(join(ROOT, 'workbench', cfg.team, profileFor(cfg.path)), { recursive: true });
+      await mkdir(join(ROOT, 'drafts', cfg.team, profileFor(cfg.path)), { recursive: true });
       prompt = buildAuthorPrompt(cfg);
     } else if (kind === 'benchmark') {
       prompt = buildBenchmarkPrompt(cfg);
     } else if (kind === 'run') {
       prompt = buildRunPrompt(cfg);
     } else if (kind === 'func-author') {
-      await mkdir(join(ROOT, 'workbench', cfg.func.team, 'functional'), { recursive: true });
+      await mkdir(join(ROOT, 'drafts', cfg.func.team, 'functional'), { recursive: true });
       prompt = buildFuncAuthorPrompt(cfg);
     } else if (kind === 'func-run') {
       prompt = buildFuncRunPrompt(cfg);
@@ -436,7 +436,7 @@ async function inventory() {
     const m = f.match(/^([a-z0-9-]+)\.([a-z0-9-]+)\.json$/);
     if (!m) continue;
     const [, team, profile] = m;
-    const script = ['envs', 'workbench'].map((d) => join(ROOT, d, team, profile, 'script.js')).find((p) => existsSync(p));
+    const script = ['live', 'drafts'].map((d) => join(ROOT, d, team, profile, 'script.js')).find((p) => existsSync(p));
     if (!script) continue;
     const last = led.get(`${team}|${profile}`) || null;
     combos.push({
@@ -452,7 +452,7 @@ async function inventory() {
 // never the shared wizard slot, which may hold a different team's app.
 async function funcInventory() {
   const teams = new Set();
-  for (const tier of ['envs', 'workbench']) {
+  for (const tier of ['live', 'drafts']) {
     let dirs = [];
     try { dirs = await readdir(join(ROOT, tier)); } catch {}
     for (const t of dirs) {
@@ -463,7 +463,7 @@ async function funcInventory() {
 }
 
 async function funcBaseUrl(team) {
-  const cfgPath = ['envs', 'workbench']
+  const cfgPath = ['live', 'drafts']
     .map((d) => join(ROOT, d, team, 'functional', 'playwright.config.ts'))
     .find((p) => existsSync(p));
   if (!cfgPath) return null;
@@ -493,7 +493,7 @@ async function schedulable() {
 async function testSteps(team, profile) {
   const slug = /^[a-z0-9][a-z0-9-]{0,40}$/;
   if (!slug.test(team) || profile !== 'functional') return [];
-  const dir = ['envs', 'workbench']
+  const dir = ['live', 'drafts']
     .map((d) => join(ROOT, d, team, 'functional', 'tests'))
     .find((p) => existsSync(p));
   if (!dir) return [];
@@ -551,7 +551,7 @@ async function readOperate(cfg) {
 
 // ── state assembly ───────────────────────────────────────────────────
 
-const scriptPath = (cfg) => join(ROOT, 'workbench', cfg.team, profileFor(cfg.path), 'script.js');
+const scriptPath = (cfg) => join(ROOT, 'drafts', cfg.team, profileFor(cfg.path), 'script.js');
 const baselinePath = (cfg) => join(ROOT, 'baselines', `${cfg.team}.${profileFor(cfg.path)}.json`);
 
 async function readResults(cfg) {
@@ -599,11 +599,11 @@ async function buildState({ fresh = false } = {}) {
   const fteam = cfg.func?.team;
   const funcDescribeDone = !!(fteam && cfg.func.url && cfg.func.journey);
   // "Create the test" unlocks "First results" once a suite exists anywhere runnable —
-  // envs/ (committed) or workbench/ (freshly authored, not yet committed). Both are
-  // real, runnable suites; run-playwright-suite accepts either. "Graduating" to envs/
+  // live/ (committed) or drafts/ (freshly authored, not yet committed). Both are
+  // real, runnable suites; run-playwright-suite accepts either. "Graduating" to live/
   // only matters for putting a script under source control — never for running it.
-  const funcSuite = (t) => !!t && (existsSync(join(ROOT, 'envs', t, 'functional', 'playwright.config.ts'))
-    || existsSync(join(ROOT, 'workbench', t, 'functional', 'playwright.config.ts')));
+  const funcSuite = (t) => !!t && (existsSync(join(ROOT, 'live', t, 'functional', 'playwright.config.ts'))
+    || existsSync(join(ROOT, 'drafts', t, 'functional', 'playwright.config.ts')));
 
   const funcLatestRecord = fteam ? await funcLatest(fteam) : null;
 
@@ -848,22 +848,22 @@ const server = createServer(async (req, res) => {
       const slug = /^[a-z0-9][a-z0-9-]{0,40}$/;
       if (!slug.test(run.team || '')) return send(res, 400, { error: 'bad team slug' });
       const auto = /_AUTO$/.test(run.heal.outcome);
-      const relDst = join('envs', run.team, 'functional');
+      const relDst = join('live', run.team, 'functional');
       const dst = join(ROOT, relDst);
-      const src = join(ROOT, 'workbench', run.team, 'functional-heal');
+      const src = join(ROOT, 'drafts', run.team, 'functional-heal');
       const { cp, rm, appendFile } = await import('node:fs/promises');
 
       if (!auto && !run.heal.graduated) {
         // ask policy, first click: the copy hasn't happened yet — this click
         // authorizes it. (auto, or already-graduated-but-not-committed —
         // e.g. approved before this commit step existed — skip straight to
-        // the commit below; the files are already correct in envs/.)
+        // the commit below; the files are already correct in live/.)
         if (existsSync(join(src, 'playwright.config.ts'))) {
           await cp(src, dst, { recursive: true, force: true });
-          // The workbench copy is removed only AFTER the commit succeeds —
+          // The drafts copy is removed only AFTER the commit succeeds —
           // deleting it first would wedge the retry path if git fails.
         } else {
-          // Workbench copy gone. If envs/ still holds uncommitted heal changes
+          // Drafts copy gone. If live/ still holds uncommitted heal changes
           // (a previous click copied then failed at git), retry just the commit;
           // only 410 when there is genuinely nothing left to save.
           const { stdout } = await execFileP('git', ['status', '--porcelain', '--', relDst], { cwd: ROOT });
@@ -872,7 +872,7 @@ const server = createServer(async (req, res) => {
           }
         }
       }
-      // trust policy: files were already copied into envs/ when the run
+      // trust policy: files were already copied into live/ when the run
       // finished (unattended) — this click is the first human review, and
       // what's left to do is make it permanent.
 
@@ -893,7 +893,7 @@ const server = createServer(async (req, res) => {
         return send(res, 500, { error: `Saved the fix to the file, but couldn't record it in git: ${String(e.message || e).slice(0, 200)}. Ask a developer to check the repo.` });
       }
 
-      // Commit succeeded (or nothing needed committing) — now the workbench
+      // Commit succeeded (or nothing needed committing) — now the drafts
       // duplicate is safe to drop. force:true → no-op when already gone.
       await rm(src, { recursive: true, force: true }).catch(() => {});
       await appendFile(LEDGER_FILE, JSON.stringify({

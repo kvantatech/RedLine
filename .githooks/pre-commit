@@ -22,16 +22,16 @@ fail() {
 staged="$(git diff --cached --name-only --diff-filter=ACMR || true)"
 
 # ----------------------------------------------------------------------------
-# CHECK (a) -- DENY writes into a submodule-pinned team's envs/<team>/
-#   Plain in-repo envs/<team>/ folders are the writable "proven" tier — scripts
-#   graduate there via perf-author. But if a company pins a team's envs/<team>/
+# CHECK (a) -- DENY writes into a submodule-pinned team's live/<team>/
+#   Plain in-repo live/<team>/ folders are the writable "proven" tier — scripts
+#   graduate there via perf-author. But if a company pins a team's live/<team>/
 #   to an external repo as a git submodule, that content is READ-ONLY here
 #   (propose changes as draft PRs upstream). Block staged writes under any path
 #   listed as a submodule in .gitmodules. With no submodules, nothing is blocked.
 # ----------------------------------------------------------------------------
 sub_paths="$(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null | awk '{print $2}' || true)"
 violations=""
-for f in $(printf '%s\n' "$staged" | grep -E '^envs/' || true); do
+for f in $(printf '%s\n' "$staged" | grep -E '^live/' || true); do
   mode="$(git ls-files --stage -- "$f" 2>/dev/null | awk '{print $1}')"
   [ "$mode" = "160000" ] && continue   # submodule pointer update itself — allowed
   for sp in $sub_paths; do
@@ -41,7 +41,7 @@ done
 if [ -n "$violations" ]; then
   fail "writes into a read-only submodule-pinned team folder are forbidden:$violations"
 fi
-echo "pre-commit [a]: envs/ submodule read-only guard ENFORCED (ok)"
+echo "pre-commit [a]: live/ submodule read-only guard ENFORCED (ok)"
 
 # ----------------------------------------------------------------------------
 # CHECK (b) -- doc-consistency-check literal checks

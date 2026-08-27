@@ -13,9 +13,9 @@ You are the `run-ledger` skill. You have two entry points: **CHECK** (called at 
 
 **Inputs** (passed by the workflow):
 - `workflow`, `team`, `profile`, `env`, `trigger` (`cron` | `deploy` | `manual`)
-- `script_path` — e.g. `envs/demo-web/api-benchmark/script.js`
+- `script_path` — e.g. `live/demo-web/api-benchmark/script.js`
 - `suite` — `"k6"` (default when absent) | `"functional"`. For functional runs `script_path`
-  is the suite directory (e.g. `envs/redline-dashboard/functional`); `script_sha` is the
+  is the suite directory (e.g. `live/redline-dashboard/functional`); `script_sha` is the
   SHA-256 of the concatenation of `playwright.config.ts` + every `tests/*.spec.ts` sorted
   by path (a spec fix → new sha → new dedupe_key → run re-arms). `baseline_path` is omitted:
   use the empty-string SHA-256 and note `no-baseline-by-design`.
@@ -103,7 +103,7 @@ Read, Write (plain file I/O only — no MCP, no model call)
 ## Data
 
 - Reads/writes: `state/run-ledger.jsonl`
-- Reads (for SHA computation): `envs/<team>/<profile>/script.js`, `baselines/<team>.<profile>.json`
+- Reads (for SHA computation): `live/<team>/<profile>/script.js`, `baselines/<team>.<profile>.json`
 
 ## Downstream consumers and their field dependencies
 

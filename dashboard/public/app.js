@@ -351,7 +351,7 @@ function renderCreate(zone, stage) {
     kind: 'author',
     startLabel: stage.done ? 'Create it again' : 'Create my test',
     doneText: 'Your test is ready.',
-    alreadyDone: stage.done && !running ? `The test exists — ${esc(`workbench/${cfg.team}/${isApi ? 'api-benchmark' : 'browser-journey'}/script.js`)}` : null,
+    alreadyDone: stage.done && !running ? `The test exists — ${esc(`drafts/${cfg.team}/${isApi ? 'api-benchmark' : 'browser-journey'}/script.js`)}` : null,
   });
 }
 
@@ -403,7 +403,7 @@ function resultCards(r) {
 function renderDone(zone) {
   const cfg = state.config;
   const profile = cfg.path === 'browser' ? 'browser-journey' : 'api-benchmark';
-  const handoff = `Hi! Our team (${cfg.team}) now has a k6 performance test, created via the RedLine perf-eng agent.\n\n- Test script:  workbench/${cfg.team}/${profile}/script.js   (in the RedLine repo)\n- Red line:     baselines/${cfg.team}.${profile}.json\n- Next step:    wire the deterministic CI gate (report-only first) into our repo —\n  see .github/actions/run-k6-action/README.md in the RedLine repo.\n  It runs the same test on every merge and reports green/red. No AI involved in the gate.\n\nQuestions → #perf-alerts on Slack.`;
+  const handoff = `Hi! Our team (${cfg.team}) now has a k6 performance test, created via the RedLine perf-eng agent.\n\n- Test script:  drafts/${cfg.team}/${profile}/script.js   (in the RedLine repo)\n- Red line:     baselines/${cfg.team}.${profile}.json\n- Next step:    wire the deterministic CI gate (report-only first) into our repo —\n  see .github/actions/run-k6-action/README.md in the RedLine repo.\n  It runs the same test on every merge and reports green/red. No AI involved in the gate.\n\nQuestions → #perf-alerts on Slack.`;
   zone.innerHTML = `
     <h1>You're set up${cfg.team ? ', ' + esc(cfg.team) : ''}.</h1>
     <p class="why">Your team has a working performance test and a red line. From here, two things are worth doing:</p>
@@ -531,7 +531,7 @@ function renderFuncCreate(zone, stage) {
     kind: 'func-author',
     startLabel: stage.done ? 'Create it again' : 'Create my test',
     doneText: 'Your test is ready — head to the next step to run it.',
-    // "done" here means a suite exists to run, in either envs/ (committed) or workbench/
+    // "done" here means a suite exists to run, in either live/ (committed) or drafts/
     // (freshly authored) — see server funcSuite. Both are real, runnable suites.
     alreadyDone: stage.done && !running ? `Your test is ready — ${esc(`${f.team}/functional`)}` : null,
   });

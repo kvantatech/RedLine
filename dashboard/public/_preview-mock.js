@@ -24,7 +24,7 @@
   const CHECKS = {
     claude: { pass: true, detail: 'claude 2.1.4 — found on this computer' },
     k6: { pass: true, detail: 'k6 v0.57.0 — found on this computer' },
-    submodules: { pass: true, detail: 'workbench/, envs/, baselines/ — all present' },
+    submodules: { pass: true, detail: 'drafts/, live/, baselines/ — all present' },
   };
   const INVENTORY = [
     { team: 'demo-web', profile: 'browser-journey', last: { verdict: 'green', at: '2026-06-10T18:02:11Z' } },
@@ -146,24 +146,24 @@
   const SCRIPTS = {
     author: [
       ['info', 'starting Claude Code (headless) — authoring a browser-journey test for demo-web'],
-      ['tool', 'Read envs/demo-web/browser-journey/script.js'],
+      ['tool', 'Read live/demo-web/browser-journey/script.js'],
       ['text', 'Following the canonical example: per-vu-iterations, 1 VU, 10 iterations, one Trend per step.'],
-      ['tool', 'Write workbench/demo-web/browser-journey/script.js'],
-      ['tool', 'Bash(k6 inspect workbench/demo-web/browser-journey/script.js)'],
+      ['tool', 'Write drafts/demo-web/browser-journey/script.js'],
+      ['tool', 'Bash(k6 inspect drafts/demo-web/browser-journey/script.js)'],
       ['text', 'Script validates. Giving it one careful trial run against staging…'],
       ['tool', 'Bash(k6 run --vus 1 --iterations 1 …)'],
       ['text', 'Trial run passed — login_submit 431ms, dashboard_load 702ms. Test is ready.'],
     ],
     benchmark: [
       ['info', 'starting Claude Code (headless) — 10-round benchmark for demo-web · browser-journey'],
-      ['tool', 'Bash(k6 run --iterations 10 workbench/demo-web/browser-journey/script.js)'],
+      ['tool', 'Bash(k6 run --iterations 10 drafts/demo-web/browser-journey/script.js)'],
       ['text', 'Round 1–10 complete. p95: dashboard_load 680ms, login_submit 402ms.'],
       ['tool', 'Write baselines/demo-web.browser-journey.json'],
       ['text', 'Red line set: max(1000, 680×1.2) = 1000ms (API floor rule). Saved.'],
     ],
     run: [
       ['info', 'starting Claude Code (headless) — run & judge demo-web · browser-journey'],
-      ['tool', 'Bash(k6 run workbench/demo-web/browser-journey/script.js)'],
+      ['tool', 'Bash(k6 run drafts/demo-web/browser-journey/script.js)'],
       ['text', 'Run complete. Comparing every step to the red line…'],
       ['tool', 'Read baselines/demo-web.browser-journey.json'],
       ['text', 'All steps under the line. Recording the verdict.'],

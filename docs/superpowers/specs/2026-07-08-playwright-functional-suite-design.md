@@ -43,14 +43,14 @@ WORKFLOWS (.claude/workflows/)
                      script-author (k6) · spec-author (Playwright)   ← new, 3rd subagent
                      │
                      └── DATA
-                         envs/<team>/functional/   ← specs as a profile-shaped folder
+                         live/<team>/functional/   ← specs as a profile-shaped folder
                          state/run-ledger.jsonl    ← same ledger + suite field
                          reports/<run_id>/         ← same layout & filenames
                          (no baselines for functional — verdict is pass/fail)
 ```
 
 Baked-in decisions:
-- Functional suites are a **profile-shaped folder** (`envs/<team>/functional/`) so graduation,
+- Functional suites are a **profile-shaped folder** (`live/<team>/functional/`) so graduation,
   path guards, run_id conventions, and the ledger work unchanged.
 - **Reviewer subagent is shared** — independent judgment on a drafted ticket is suite-agnostic.
 - **`spec-author` is a new subagent** (3rd) — justified by the same clause as `script-author`:
@@ -68,7 +68,7 @@ Baked-in decisions:
 | 3 | ★ `spec-author` — generate `playwright.config.ts` + `tests/*.spec.ts` from live-confirmed locators | `[MODEL]` |
 | 3a | `scope-review` — human confirms flows, exclusions, auth handling | `[HUMAN]` |
 | 4 | `verify-playwright-suite` — run suite, fix ≤3 rounds, flakes corroborated not chased | `[MODEL bounded]` |
-| 5 | `graduate-script` — `workbench/<team>/functional/` → `envs/<team>/functional/` | `[DET]` |
+| 5 | `graduate-script` — `drafts/<team>/functional/` → `live/<team>/functional/` | `[DET]` |
 | 6 | `open-draft-pr` — P5+, skipped in building phase | `[DET]` |
 
 **Model-call budget: 1** (`spec-author`) **+ 2 bounded grounded helpers** — identical to
@@ -97,12 +97,12 @@ ledger record — same rule as perf.
 
 ## 5. Data layer
 
-- **Suite location:** `workbench/<team>/functional/` (authoring) → `envs/<team>/functional/`
+- **Suite location:** `drafts/<team>/functional/` (authoring) → `live/<team>/functional/`
   (graduated). Self-contained: `playwright.config.ts` (`testDir: ./tests`, `webServer`/`baseURL`)
-  + `tests/*.spec.ts`. `run-playwright-suite` enforces the same `envs/`-only path guard as k6.
+  + `tests/*.spec.ts`. `run-playwright-suite` enforces the same `live/`-only path guard as k6.
 - **Dependencies:** new root `package.json`, sole devDependency `@playwright/test`;
   one `npx playwright install chromium`; `node_modules/` gitignored. One install serves all
-  teams (`npx playwright test -c envs/<team>/functional/playwright.config.ts`).
+  teams (`npx playwright test -c live/<team>/functional/playwright.config.ts`).
   The dashboard itself stays zero-dep and untouched.
 - **Pilot:** team `redline-dashboard`; `webServer` auto-starts `node dashboard/server.mjs
   --no-open`; `baseURL: http://127.0.0.1:4242`.

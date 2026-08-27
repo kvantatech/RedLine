@@ -3,7 +3,7 @@
   "env": "stg",
   "profile": "api-benchmark",
   "updated": "2026-07-19",
-  "source": "10-iteration real run 2026-07-19 (authoring smoke, workbench verify) — config p95=95ms, pizza p95=136ms, 10/10 iterations, exit 0; threshold = max(1000, p95*1.2) = 1000ms both (API floor rule)",
+  "source": "10-iteration real run 2026-07-19 (authoring smoke, drafts verify) — config p95=95ms, pizza p95=136ms, 10/10 iterations, exit 0; threshold = max(1000, p95*1.2) = 1000ms both (API floor rule)",
   "endpoints": [
     {
       "name": "GET /api/config",

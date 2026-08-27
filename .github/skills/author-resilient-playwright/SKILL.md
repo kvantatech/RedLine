@@ -109,7 +109,7 @@ Playwright MCP (`browser_snapshot`, `browser_navigate`), and playwright-test MCP
 
 - Reads: nothing at runtime — this skill is guidance the spec-author and verify-playwright-suite
   consult.
-- Writes: nothing. The `fixtures.ts` template is copied into each `workbench/<team>/functional/tests/`.
+- Writes: nothing. The `fixtures.ts` template is copied into each `drafts/<team>/functional/tests/`.
 
 ## Hard rules
 

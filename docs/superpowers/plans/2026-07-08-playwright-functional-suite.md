@@ -18,7 +18,7 @@
 - **Doctrine labels** (`[DET] [MODEL] [MODEL grounded] [MODEL bounded] [HUMAN]`) on every workflow step. Budgets: func-author = 1 + 2 bounded grounded helpers; func-run-one = 2 (+2 on one REQUEST_CHANGES retry).
 - **`retries: 0` in every Playwright config** — flake detection belongs to `corroborate-2-sources`, never to Playwright retries.
 - **Canonical source is `.github/`** — skills in `.github/skills/<name>/SKILL.md`, subagents in `.github/agents/`. No `.claude/` copies.
-- **`envs/` is read-only** except the pilot carve-out `envs/redline-dashboard/` (and existing `envs/demo-web/`).
+- **`live/` is read-only** except the pilot carve-out `live/redline-dashboard/` (and existing `live/demo-web/`).
 - **Absolute dates** in all authored docs; stamp facts with 2026-07-08.
 - New skill files follow the house format: title, one-line quote, `**Type:** … · **Used by:** … · **Status:** …`, `## Prompt` (numbered steps), `## Tools`, `## Data`, `## Hard rules`.
 
@@ -170,7 +170,7 @@ You will execute a single Playwright functional suite and save its output. Follo
 ### 1 — Validate inputs
 
 Required inputs (caller must supply all three):
-- `suite_path` — e.g. `envs/redline-dashboard/functional` (a directory containing `playwright.config.ts` and `tests/`)
+- `suite_path` — e.g. `live/redline-dashboard/functional` (a directory containing `playwright.config.ts` and `tests/`)
 - `run_id` — unique string, e.g. `redline-dashboard_functional_local_20260708T143022Z`
 - `env` — `local` or `stg` (case-insensitive)
 
@@ -178,7 +178,7 @@ Optional:
 - `extra_args` — extra CLI args (e.g. `--last-failed`, passed by corroborate-2-sources)
 
 Reject and STOP if any of the following are true:
-- `suite_path` does not start with `envs/` (absolute or `../` paths are forbidden)
+- `suite_path` does not start with `live/` (absolute or `../` paths are forbidden)
 - `<suite_path>/playwright.config.ts` does not exist
 - `env` is `prod` — **functional suites NEVER run on PROD (v1 hard rule — no carve-out, stricter than k6)**
 - `run_id` is empty or missing
@@ -227,7 +227,7 @@ Bash (`npx playwright test`), Read, Write — no MCP, no model calls.
 
 ## Data
 
-- Reads: `envs/<team>/functional/` (config + specs)
+- Reads: `live/<team>/functional/` (config + specs)
 - Writes: `reports/<run_id>/results.json`, `reports/<run_id>/run-error.txt`, `reports/<run_id>/traces/`, `reports/<run_id>/trace-note.txt`
 
 ## Hard rules
@@ -661,7 +661,7 @@ In Entry point A inputs, after `script_path`, add:
 
 ```markdown
 - `suite` — `"k6"` (default when absent) | `"functional"`. For functional runs `script_path`
-  is the suite directory (e.g. `envs/redline-dashboard/functional`); `script_sha` is the
+  is the suite directory (e.g. `live/redline-dashboard/functional`); `script_sha` is the
   SHA-256 of the concatenation of `playwright.config.ts` + every `tests/*.spec.ts` sorted
   by path (a spec fix → new sha → new dedupe_key → run re-arms). `baseline_path` is omitted:
   use the empty-string SHA-256 and note `no-baseline-by-design`.
@@ -829,7 +829,7 @@ git commit -m "feat: triage-func-verdict skill (1-narration Jira draft for funct
 
 **Interfaces:**
 - Consumes: flow map + locator inventory from `explore-product-structure`.
-- Produces: DRAFT `workbench/<team>/functional/playwright.config.ts` + `tests/*.spec.ts`. Consumed by `verify-playwright-suite` (Task 10) and `func-author` (Task 11).
+- Produces: DRAFT `drafts/<team>/functional/playwright.config.ts` + `tests/*.spec.ts`. Consumed by `verify-playwright-suite` (Task 10) and `func-author` (Task 11).
 
 - [ ] **Step 1: Write the agent file**
 
@@ -876,8 +876,8 @@ Conventions (non-negotiable):
 - **Use ONLY locators present in the inventory.** If a flow lacks confirmed locators,
   stop and say so rather than inventing.
 
-Output is a **DRAFT suite only** (write to the workbench path the workflow hands you).
-**Never commit, never push, never write inside `envs/*`.**
+Output is a **DRAFT suite only** (write to the drafts path the workflow hands you).
+**Never commit, never push, never write inside `live/*`.**
 
 ## Tools
 
@@ -886,9 +886,9 @@ upstream, verification happens downstream).
 
 ## Data
 
-- Reads: the flow map / locator inventory the workflow passes; `envs/*/functional/` as
+- Reads: the flow map / locator inventory the workflow passes; `live/*/functional/` as
   read-only exemplars once the first suite is graduated.
-- Writes: `workbench/<team>/functional/` only.
+- Writes: `drafts/<team>/functional/` only.
 ````
 
 - [ ] **Step 2: Update AGENTS.md**
@@ -933,7 +933,7 @@ git commit -m "feat: spec-author subagent — 3rd justified model loop (function
 - Create: `.github/skills/verify-playwright-suite/SKILL.md`
 
 **Interfaces:**
-- Consumes: DRAFT suite in `workbench/<team>/functional/` (Task 9).
+- Consumes: DRAFT suite in `drafts/<team>/functional/` (Task 9).
 - Produces: a verified suite (edits in place) + PASS/FAIL result consumed by `func-author` step 4.
 
 - [ ] **Step 1: Write the SKILL.md**
@@ -948,13 +948,13 @@ git commit -m "feat: spec-author subagent — 3rd justified model loop (function
 
 ## Prompt
 
-You will verify a drafted Playwright suite in `workbench/<team>/functional/`. Hard cap:
+You will verify a drafted Playwright suite in `drafts/<team>/functional/`. Hard cap:
 **3 fix rounds**, then stop.
 
 ### 1 — Run
 
 ```
-npx playwright test -c workbench/<team>/functional/playwright.config.ts --reporter=line
+npx playwright test -c drafts/<team>/functional/playwright.config.ts --reporter=line
 ```
 
 All pass → return PASS with the summary line. Done.
@@ -993,8 +993,8 @@ Bash (`npx playwright test`), Read, Write, Edit, Playwright MCP (`browser_naviga
 
 ## Data
 
-- Reads/edits: `workbench/<team>/functional/` only — never `envs/`.
-- Writes: nothing outside the workbench suite.
+- Reads/edits: `drafts/<team>/functional/` only — never `live/`.
+- Writes: nothing outside the drafts suite.
 
 ## Hard rules
 
@@ -1025,7 +1025,7 @@ git commit -m "feat: verify-playwright-suite skill (bounded 3-round authoring fi
 
 **Interfaces:**
 - Consumes: skills from Tasks 3–10 by exact registry name.
-- Produces: a graduated suite in `envs/<team>/functional/` — the input `func-run-one` runs.
+- Produces: a graduated suite in `live/<team>/functional/` — the input `func-run-one` runs.
 
 - [ ] **Step 1: Write the workflow.md**
 
@@ -1051,14 +1051,14 @@ model call grounded in live tools. `[MODEL bounded]` = hard round limit. `[HUMAN
    async/loading/redirect states
 2. [DET] `scrub-har-secrets` — only if a HAR was captured during exploration
 3. [MODEL] ★ `spec-author` (SUBAGENT) — generate `playwright.config.ts` (retries: 0,
-   webServer) + `tests/*.spec.ts` from the inventory → `workbench/<team>/functional/`
+   webServer) + `tests/*.spec.ts` from the inventory → `drafts/<team>/functional/`
 3a. [HUMAN] `scope-review` — agent presents flows covered, exclusions, auth handling,
    open questions; human confirms or redirects. **No verify rounds are spent until scope
    is approved.**
 4. [MODEL bounded] `verify-playwright-suite` — run → corroborate failures → fix (≤3 rounds;
    app bugs stop the loop)
-5. [DET] `graduate-script` — copy proven `workbench/<team>/functional/` →
-   `envs/<team>/functional/`; extend the pre-commit `envs/` allow-list if needed.
+5. [DET] `graduate-script` — copy proven `drafts/<team>/functional/` →
+   `live/<team>/functional/`; extend the pre-commit `live/` allow-list if needed.
    **Building phase only** — replaced by `open-draft-pr` when GitHub MCP (P5) is wired.
 6. [DET] `open-draft-pr` — P5+; skipped in building phase (graduation IS delivery)
 
@@ -1133,7 +1133,7 @@ deploy_sha — (deploy trigger only)
 
 ## Steps (recipe)
 
-1. **[DET] run-playwright-suite** — path guard (`envs/` only), prod-gate (reject), run
+1. **[DET] run-playwright-suite** — path guard (`live/` only), prod-gate (reject), run
    `npx playwright test --reporter=json` → `reports/<run_id>/results.json`.
    Crash (exit ∉ {0,1} or results.json missing) → `run-error.txt`, ledger FAILED, STOP.
 2. **[DET] parse-playwright-summary** — `parse.mjs` → `reports/<run_id>/contract.json`.
@@ -1218,8 +1218,8 @@ Exact edits:
 3. In the file-tree block, extend the workflows line to include `func-author · func-run-one` and add under skills a line: `run-playwright-suite · parse-playwright-summary · func-verdict · verify-playwright-suite · triage-func-verdict (functional)`.
 4. Hard rule 2: append `Functional (Playwright) suites never run on PROD in v1 — no carve-out.`
 5. Hard rule 6: append `Functional verdict: all tests pass = green; any corroborated failure = red — same two verdicts, pass/fail edition.`
-6. Hard rule 3: append to the demo-web exception sentence: `The same carve-out applies to envs/redline-dashboard/ (functional pilot).`
-7. Pilot scope section: append one paragraph: `Functional pilot (2026-07-08): team redline-dashboard — the RedLine dashboard itself (local, no SSO). Suites live in envs/redline-dashboard/functional/; no real team gets a functional suite until this pilot passes and a human signs off.`
+6. Hard rule 3: append to the demo-web exception sentence: `The same carve-out applies to live/redline-dashboard/ (functional pilot).`
+7. Pilot scope section: append one paragraph: `Functional pilot (2026-07-08): team redline-dashboard — the RedLine dashboard itself (local, no SSO). Suites live in live/redline-dashboard/functional/; no real team gets a functional suite until this pilot passes and a human signs off.`
 
 - [ ] **Step 2: README.md + PRODUCT.md intro repositioning**
 
@@ -1317,7 +1317,7 @@ The functional "Create the test" spawn passes this prompt (team/url/journey inte
 Run the func-author workflow (.claude/workflows/func-author/workflow.md) end to end for
 team "<team>". Entry mode: author-first. App under test: <url>. The user journey, in the
 user's own words: "<journey>". Explore the app live with Playwright MCP first, then have
-spec-author draft workbench/<team>/functional/. Stop at the scope-review gate and print
+spec-author draft drafts/<team>/functional/. Stop at the scope-review gate and print
 the scope summary for human confirmation. Do not graduate without approval.
 ```
 
@@ -1346,9 +1346,9 @@ git commit -m "feat: wizard functional path drives func-author/func-run-one head
 ### Task 16: Pilot suite — dogfood `func-author` on the dashboard
 
 **Files:**
-- Create (via workflow): `workbench/redline-dashboard/functional/playwright.config.ts` + `tests/*.spec.ts`
-- Create (graduation): `envs/redline-dashboard/functional/` (same files)
-- Modify: `.githooks/pre-commit` (extend the `envs/` write carve-out to `envs/redline-dashboard/`)
+- Create (via workflow): `drafts/redline-dashboard/functional/playwright.config.ts` + `tests/*.spec.ts`
+- Create (graduation): `live/redline-dashboard/functional/` (same files)
+- Modify: `.githooks/pre-commit` (extend the `live/` write carve-out to `live/redline-dashboard/`)
 
 **Interfaces:**
 - Consumes: Tasks 11, 14 (suite is authored against the redesigned UI).
@@ -1356,7 +1356,7 @@ git commit -m "feat: wizard functional path drives func-author/func-run-one head
 
 - [ ] **Step 1: Execute `func-author` for real**
 
-team=`redline-dashboard`, entry=author-first, app=`http://127.0.0.1:4242` (webServer: `node dashboard/server.mjs --no-open`, `reuseExistingServer: true`, `retries: 0`). Explore live via Playwright MCP; spec-author drafts to `workbench/redline-dashboard/functional/`. Target coverage (guide, human may redirect at scope gate): Start-screen fork renders both paths; functional wizard walk to spawn point; performance wizard first screen loads; theme toggle persists.
+team=`redline-dashboard`, entry=author-first, app=`http://127.0.0.1:4242` (webServer: `node dashboard/server.mjs --no-open`, `reuseExistingServer: true`, `retries: 0`). Explore live via Playwright MCP; spec-author drafts to `drafts/redline-dashboard/functional/`. Target coverage (guide, human may redirect at scope gate): Start-screen fork renders both paths; functional wizard walk to spawn point; performance wizard first screen loads; theme toggle persists.
 
 - [ ] **Step 2: `[HUMAN]` scope gate — STOP and present to Anton**
 
@@ -1364,18 +1364,18 @@ Present flows covered, exclusions, and open questions. **Do not proceed to verif
 
 - [ ] **Step 3: Verify (≤3 rounds)**
 
-`verify-playwright-suite` on the workbench suite.
+`verify-playwright-suite` on the drafts suite.
 Expected: PASS — all tests green, flakes (if any) rewritten and listed.
 
 - [ ] **Step 4: Graduate + pre-commit carve-out**
 
-Copy `workbench/redline-dashboard/functional/` → `envs/redline-dashboard/functional/`. Read `.githooks/pre-commit`; find the `envs/` write-guard allow-list (demo-web carve-out) and add `envs/redline-dashboard/`.
+Copy `drafts/redline-dashboard/functional/` → `live/redline-dashboard/functional/`. Read `.githooks/pre-commit`; find the `live/` write-guard allow-list (demo-web carve-out) and add `live/redline-dashboard/`.
 Run: `powershell -File tests/smoke.ps1` — expected PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add workbench/redline-dashboard/ envs/redline-dashboard/ .githooks/pre-commit
+git add drafts/redline-dashboard/ live/redline-dashboard/ .githooks/pre-commit
 git commit -m "feat: redline-dashboard functional pilot suite (authored via func-author)"
 ```
 
@@ -1384,7 +1384,7 @@ git commit -m "feat: redline-dashboard functional pilot suite (authored via func
 ### Task 17: Pilot proofs — GREEN, FUNC-SIM-001 RED, FLAKE-SIM
 
 **Files:**
-- Create/remove (transient): `envs/redline-dashboard/functional/tests/sim-red.spec.ts`, `sim-flake.spec.ts`
+- Create/remove (transient): `live/redline-dashboard/functional/tests/sim-red.spec.ts`, `sim-flake.spec.ts`
 - Modify: `state/run-ledger.jsonl` (via run-ledger WRITE only)
 
 **Interfaces:**
@@ -1397,7 +1397,7 @@ Expected: `GREEN — N/N tests passed (redline-dashboard functional)`; ledger li
 
 - [ ] **Step 2: FUNC-SIM-001 — corroborated red through the full chain**
 
-Add `envs/redline-dashboard/functional/tests/sim-red.spec.ts`:
+Add `live/redline-dashboard/functional/tests/sim-red.spec.ts`:
 
 ```ts
 import { test, expect } from "@playwright/test";
@@ -1419,7 +1419,7 @@ Then delete `sim-red.spec.ts`.
 
 - [ ] **Step 3: FLAKE-SIM — flake dies at the deterministic gate**
 
-Add `envs/redline-dashboard/functional/tests/sim-flake.spec.ts`:
+Add `live/redline-dashboard/functional/tests/sim-flake.spec.ts`:
 
 ```ts
 import { test, expect } from "@playwright/test";
@@ -1445,7 +1445,7 @@ Then delete `sim-flake.spec.ts` and the marker file.
 
 Run: `powershell -File tests/smoke.ps1` → `SMOKE PASSED`.
 Run: `powershell -File tests/func-contract-check.ps1` → `FUNC CHECK PASSED`.
-Run: `npx playwright test -c envs/redline-dashboard/functional/playwright.config.ts --reporter=line` → all pass.
+Run: `npx playwright test -c live/redline-dashboard/functional/playwright.config.ts --reporter=line` → all pass.
 
 - [ ] **Step 5: Commit the proofs**
 

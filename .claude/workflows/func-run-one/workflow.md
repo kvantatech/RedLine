@@ -24,7 +24,7 @@ deploy_sha — (deploy trigger only)
 
 ## Steps (recipe)
 
-1. **[DET] run-playwright-suite** — path guard (`envs/` or `workbench/` only), prod-gate (reject), run
+1. **[DET] run-playwright-suite** — path guard (`live/` or `drafts/` only), prod-gate (reject), run
    `npx playwright test --reporter=json` → `reports/<run_id>/results.json`.
    Crash (exit ∉ {0,1} or results.json missing) → `run-error.txt`, ledger FAILED, STOP.
 2. **[DET] parse-playwright-summary** — `parse.mjs` → `reports/<run_id>/contract.json`.
@@ -34,16 +34,16 @@ deploy_sha — (deploy trigger only)
    as `<run_id>_confirm` (bypasses O0 — result lives in the parent record).
    Confirm green → FLAKE, STOP. Confirm fail → cannot corroborate, STOP. Confirm red →
    `sources: 2`, continue.
-4.5. **[MODEL] heal-playwright-suite** — corroborated red on an `envs/` (proven) suite only;
-   workbench runs skip this (authoring has its own verify loop). Classifies each failure
+4.5. **[MODEL] heal-playwright-suite** — corroborated red on an `live/` (proven) suite only;
+   drafts runs skip this (authoring has its own verify loop). Classifies each failure
    test-bug vs app-bug at the live failure point (`test_debug` + `browser_snapshot`), heals
-   test-bugs in a **workbench copy** (≤2 rounds, green ×2 required), writes
-   `reports/<run_id>/heal/` (heal-report.md + suite.diff). Never writes `envs/` — a human
+   test-bugs in a **drafts copy** (≤2 rounds, green ×2 required), writes
+   `reports/<run_id>/heal/` (heal-report.md + suite.diff). Never writes `live/` — a human
    graduates the healed diff.
    - `HEALED` (all failures were test rot) → ledger (`heal: proposed`, jira_filed=false,
      no draft — there is no product bug to file). STOP.
    - `HEALED_AUTO` (team policy `trust` in `state/heal-policy.json`) → healed suite already
-     graduated to `envs/` (files copied, NOT committed — the uncommitted diff is the audit
+     graduated to `live/` (files copied, NOT committed — the uncommitted diff is the audit
      surface) → ledger (`heal: auto_graduated`). STOP.
    - `PARTIAL` / `PARTIAL_AUTO` → continue to O5 **for the app-bug failures only**; healed
      test-bugs noted in the draft's evidence section.
@@ -74,12 +74,12 @@ RED   → O4 corroborate (ONE confirmation re-run, failures only)
           → confirm crashed → print "CONFIRM CRASHED — infra issue" → ledger
                                (corroborated=false, confirm_verdict="crashed"). STOP.
           → confirm red (sources=2):
-        → O4.5 heal (envs/ suites only)
+        → O4.5 heal (live/ suites only)
           → HEALED       → print "HEALED — test rot repaired, diff awaits graduation
                             (reports/<run_id>/heal/)" → ledger (heal=proposed). STOP —
                             no Jira: nothing product-side broke.
           → HEALED_AUTO  → print "HEALED — test rot repaired and auto-graduated (team
-                            policy: trust); review the uncommitted envs/ diff" → ledger
+                            policy: trust); review the uncommitted live/ diff" → ledger
                             (heal=auto_graduated). STOP.
           → PARTIAL(_AUTO) → continue below for the remaining app-bug failures.
           → NOT_HEALABLE → continue below unchanged (real regression).
@@ -97,7 +97,7 @@ FAIL  → print "FAIL — <reason>" + ledger record. STOP.
 
 **2** — `triage-func-verdict` (1 narration line) + `reviewer` (dual-pass) — **+1 bounded**
 (`heal-playwright-suite`, ≤2 fix rounds) only on a corroborated red against a proven
-`envs/` suite. Everything else [DET].
+`live/` suite. Everything else [DET].
 
 ---
 

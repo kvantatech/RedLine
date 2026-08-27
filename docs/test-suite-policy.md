@@ -65,8 +65,8 @@ Soak and Stress are always report-only in CI (on-demand, results reviewed by hum
 ## Applying this policy to a new team (mass-onboarding checklist)
 
 1. Author benchmark + browser scripts via `perf-author` workflow
-2. Verify both pass smoke run in `workbench/<team>/`
-3. Graduate to `envs/<team>/`
+2. Verify both pass smoke run in `drafts/<team>/`
+3. Graduate to `live/<team>/`
 4. Wire `run-k6-action` in team's CI (report-only mode for all)
 5. After 2-week burn-in: promote benchmark + browser to enforce
 6. Author load + spike scripts via `perf-author` workflow

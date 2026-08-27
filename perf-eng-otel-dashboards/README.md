@@ -22,7 +22,7 @@ the data, not the overlay.
 
 All panels query the **`Mimir-demo-perf`** datasource and filter on
 the k6 tag set defined in the LGTM integration guide
-(`envs/prod-stg-build-tests/docs/K6_LGTM_INTEGRATION_GUIDE.md`):
+(`live/prod-stg-build-tests/docs/K6_LGTM_INTEGRATION_GUIDE.md`):
 
 ```
 team="demo-perf"   ← Mimir tenant (fixed)
@@ -74,7 +74,7 @@ RedLine-side real-time path is the `notify-responsible-team` skill.
 ## Deployment
 
 This tree is the **source artifact** — it deploys the same way core-ui's does
-(ArgoCD app pointing at the overlay per Grafana instance). `envs/ui-deployments`
+(ArgoCD app pointing at the overlay per Grafana instance). `live/ui-deployments`
 is a read-only submodule here, so wiring the ArgoCD Application for
 `demo-perf` is a DevOps hand-off:
 

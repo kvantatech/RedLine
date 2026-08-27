@@ -132,7 +132,7 @@ if (Test-Path -LiteralPath $skillsRoot) {
 Test-Item 'baselines/README.md'
 Test-Item 'baselines/demo-web.api-benchmark.json'
 Test-Item 'state/run-ledger.jsonl'
-Test-Item 'envs/README.md'
+Test-Item 'live/README.md'
 Test-Item '.githooks/pre-commit'
 Test-Item 'prompt-tests/README.md'
 

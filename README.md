@@ -81,7 +81,7 @@ The same loop gates deploys: in enforce mode the composite Action exits `99` on 
 
 | Concept | Meaning |
 |---|---|
-| **Team** | A folder of tests owned by one team. Drafts live in `workbench/<team>/`, proven suites graduate to `envs/<team>/` (read-only, write only via graduation). Ships with examples to copy: `demo-web`, `demo-api`, `quickpizza-team`, `saucedemo-team`, `redline-dashboard` (the built-in self-test). |
+| **Team** | A folder of tests owned by one team. Drafts live in `drafts/<team>/`, proven suites graduate to `live/<team>/` (read-only, write only via graduation). Ships with examples to copy: `demo-web`, `demo-api`, `quickpizza-team`, `saucedemo-team`, `redline-dashboard` (the built-in self-test). |
 | **Baseline** | `baselines/<team>.<profile>.json`: the red/green p95 thresholds per test. Seeded from a real first benchmark, never guessed. |
 | **Verdict** | **Green or red. Nothing else.** No ambers, no scores. A test either holds its line or it doesn't. |
 | **The gate** | `run-k6-action`: deterministic composite Action; exit `0`/`99`/`97`. The one verdict implementation (`compare-core.js`) shared by CI and the agentic loop. |
@@ -144,8 +144,8 @@ WORKFLOWS  (.claude/workflows/<name>/)        ← deterministic recipes; the con
                         └── read / write DATA
                                 baselines/<team>.<profile>.json  ← red/green thresholds
                                 state/run-ledger.jsonl           ← idempotency ledger
-                                envs/<team>/                     ← proven tier (write via graduation only)
-                                workbench/<team>/                ← draft tier
+                                live/<team>/                     ← proven tier (write via graduation only)
+                                drafts/<team>/                   ← draft tier
                                 reports/ · logs/                 ← transient (gitignored)
 ```
 

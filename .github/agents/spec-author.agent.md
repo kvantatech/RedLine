@@ -80,8 +80,8 @@ page pass; a suite that fails 5 minutes after it was recorded is a defect of the
   and when to un-skip. The suite stays green on unchanged content; the finding stays
   visible for a human. Never delete the test, never weaken it into a fake pass.
 
-Output is a **DRAFT suite only** (write to the workbench path the workflow hands you).
-**Never commit, never push, never write inside `envs/*`.**
+Output is a **DRAFT suite only** (write to the drafts path the workflow hands you).
+**Never commit, never push, never write inside `live/*`.**
 
 ## Tools
 
@@ -90,6 +90,6 @@ upstream, verification happens downstream).
 
 ## Data
 
-- Reads: the flow map / locator inventory the workflow passes; `envs/*/functional/` as
+- Reads: the flow map / locator inventory the workflow passes; `live/*/functional/` as
   read-only exemplars once the first suite is graduated.
-- Writes: `workbench/<team>/functional/` only.
+- Writes: `drafts/<team>/functional/` only.

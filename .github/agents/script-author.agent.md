@@ -36,7 +36,7 @@ Given the **page/endpoint map** (from `explore-product-structure`) and the **`k6
 - **Bounded** — use only executors/APIs the grounding returned; do not invent shapes or hallucinate
   k6 APIs. If the map or grounding is missing what you need, stop and say so rather than guessing.
 - Output a **DRAFT script only** (write it to the working path the workflow hands you).
-  **Never commit, never merge, never push, never write inside `envs/*`.** Delivery is the workflow's
+  **Never commit, never merge, never push, never write inside `live/*`.** Delivery is the workflow's
   deterministic `open-draft-pr` step, gated behind a human merge.
 
 ## Tools
@@ -45,12 +45,12 @@ Given the **page/endpoint map** (from `explore-product-structure`) and the **`k6
 github, slack, Bash). Phase-of-need: k6 surfaces are **wired at P0**; this subagent is **used live at P4**.
 
 > **Note — `Write` path restriction:** The agent frontmatter has no syntax to scope `Write`
-> to specific paths. The `envs/` prohibition ("Never write here") is enforced at the model-instruction
+> to specific paths. The `live/` prohibition ("Never write here") is enforced at the model-instruction
 > layer only. The calling workflow mitigates this by passing only the target script path explicitly,
-> never exposing the `envs/` root to this subagent's working context.
+> never exposing the `live/` root to this subagent's working context.
 
 ## Data
 
 - `baselines/` — read the `baselines/<team>.<profile>.json` grammar as a **reference** for the contract
   the generated script must satisfy (tags, profile naming).
-- `envs/` — **read-only**: template / exemplar scripts to mirror conventions. Never write here.
+- `live/` — **read-only**: template / exemplar scripts to mirror conventions. Never write here.

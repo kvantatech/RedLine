@@ -9,10 +9,10 @@ Until `DEC-prod-scripts` execution lands, first PROD runs are **benchmark, 1-VU 
 ## Steps (recipe)
 
 1. **Enumerate teams** — read the team roster (the 13 teams) from `status.json`. One iteration per team. Caps: ≤16 concurrent, ≤1000 agents/run.
-2. **Inventory STG scripts** — for each team, list the existing STG scripts under `envs/<team>/stg/` (`<team>_<profile>_stg.js`). This is the STG coverage set.
-3. **Inventory PROD scripts** — for each team, list the existing PROD scripts under `envs/<team>/prod/` (`<team>_<profile>_prod.js`). This is the PROD coverage set.
+2. **Inventory STG scripts** — for each team, list the existing STG scripts under `live/<team>/stg/` (`<team>_<profile>_stg.js`). This is the STG coverage set.
+3. **Inventory PROD scripts** — for each team, list the existing PROD scripts under `live/<team>/prod/` (`<team>_<profile>_prod.js`). This is the PROD coverage set.
 4. **Set-diff (STG − PROD)** — compute the per-team set of profiles present in STG but **missing** from PROD. This is the parity gap to close. Empty diff → team already at parity, skip to step 7.
-5. **Author each missing PROD script** — for each missing `<profile>`, invoke the **`perf-author`** workflow with `{ team, env=prod, profiles:[<profile>], mode=author-first }`. `perf-author` runs its EXPLORE → LEARN → VERIFY → DELIVER backbone and ends at a **draft PR** via `open-draft-pr` (branch `perf-author/<team>-<profile>`; never `main`; never inside `envs/*`). The fleet workflow does **not** run or merge anything.
+5. **Author each missing PROD script** — for each missing `<profile>`, invoke the **`perf-author`** workflow with `{ team, env=prod, profiles:[<profile>], mode=author-first }`. `perf-author` runs its EXPLORE → LEARN → VERIFY → DELIVER backbone and ends at a **draft PR** via `open-draft-pr` (branch `perf-author/<team>-<profile>`; never `main`; never inside `live/*`). The fleet workflow does **not** run or merge anything.
 6. **PROD benchmark caveat (until `DEC-prod-scripts`)** — any first PROD run authored here is constrained to **`k6-profile-benchmark`, vus ≤ 1**, and requires a **one-time operator-approval token**. `run-k6-script` is only ever invoked under that token; everyday verification stays on the STG mirror. Heavy profiles authored for PROD are delivered as draft PRs but remain **blocked from execution** on PROD.
 7. **Record + report** — append per-team outcomes (gap size before/after, PRs opened) to the ledger via **`run-ledger`** and emit one cited parity report. **STOP — human merges all PRs.**
 
