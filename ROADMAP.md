@@ -19,9 +19,9 @@ Three features planned for upcoming releases (not yet built):
 2. **Dashboard graphs upgrade.** Richer, more readable trend charts and a friendlier, more self-serve results view.
 3. **AI chatbot (log-aware Q&A).** A plain-language interface over the run ledger, so anyone can ask "what regressed yesterday?" and get an answer grounded in the actual run history. A natural fit for the existing MCP server.
 
-## 2026-07-27 — Midscene gap analysis: runtime-AI stays out; DOM-less exception noted, deferred
+## 2026-07-27 — Runtime-AI stays out of the gate; DOM-less exception noted, deferred
 
-Storm-verified deep dive against Midscene.js (vision-model UI automation). **DECISION
+Evaluated runtime vision-model UI automation as a primary execution path. **DECISION
 (binding): RedLine's architecture holds** — AI stays at authoring/healing time,
 compiling to deterministic, zero-model-call Playwright/k6 tests; a runtime VLM never
 becomes the primary execution path (violates hard rule 8, and the evidence backs the
@@ -29,11 +29,11 @@ rule: best agents score 14–31% task success on WebArena/AndroidWorld, far belo
 oracle-grade).
 
 **One real exception, not scheduled:** Playwright is structurally blind on DOM-less
-surfaces — canvas-rendered UIs (e.g. `echo`, all-procedural Flame/Flutter) and native
+surfaces — canvas-rendered UIs (procedural Flame/Flutter and similar) and native
 mobile have no DOM to grab. There, a vision-grounded tool isn't a stylistic choice, it's
-the only option. If a canvas/native-mobile target ever needs QA coverage, **wrap
-Midscene (MIT, self-hostable) scoped to that segment — do not rebuild it.** No demand
-today; do not build ahead of a real target.
+the only option. If a canvas/native-mobile target ever needs QA coverage, **adopt an
+existing MIT-licensed, self-hostable vision-grounded runner scoped to that segment — do
+not rebuild it.** No demand today; do not build ahead of a real target.
 
 ## 2026-07-16 — Positioning (validated): zero-infra QA for small teams, in any repo
 
@@ -50,10 +50,10 @@ story. The JSONL ingestion contract (`tools/README.md`) stays as a shipped featu
 CI runs from other repos/clusters merge into the dashboard — it is just not the
 headline. Do-not-pivot-to-infrastructure still stands.
 
-## 2026-07-16 — Testkube gap analysis → free-tier scope + paid-tier deferral
+## 2026-07-16 — Platform gap analysis → free-tier scope + paid-tier deferral
 
-A gap analysis against Testkube (testkube.io) picked five gaps worth closing and one
-deliberately deferred.
+A gap analysis against the established CI-native testing platforms picked five gaps
+worth closing and one deliberately deferred.
 
 **DECISION (binding): the full runner-agent control plane is deferred to a future PAID
 version.** "Full control plane" = the dashboard dispatching runs *into* remote Kubernetes

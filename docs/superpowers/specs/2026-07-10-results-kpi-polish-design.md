@@ -1,19 +1,18 @@
 # Results view — KPI tiles + per-row history bars (design spec)
 
-> Date: 2026-07-10 · Status: APPROVED (Anton, 2026-07-10) · Origin: Testkube homepage dashboard (video)
+> Date: 2026-07-10 · Status: APPROVED (Anton, 2026-07-10) · Origin: platform dashboard review
 > Build note: UI work uses the **impeccable** skill. Extends the Results view shipped on
 > branch `feat/runs-view` (spec: `2026-07-10-runs-view-design.md`).
 
 ## Context
 
-The Testkube dashboard reads as more polished than RedLine's Results view for two concrete
-reasons, both worth adopting: (1) a hero row of big-number KPI tiles with full-bleed sparkline
-backgrounds, and (2) an inline mini history-bar on every list row showing that workflow's recent
-run outcomes. Two other Testkube features — a DAG/pipeline step visualizer and an AI-chat
-workflow builder — were **deliberately rejected**: the DAG reflects Kubernetes multi-worker
-sharding RedLine does not do (one k6/Playwright script runs at a time; a fake pipeline diagram
-would misrepresent the run), and the chat widget duplicates governance RedLine already has in the
-reviewer/corroborate gate.
+Two dashboard patterns are worth adopting into the Results view: (1) a hero row of big-number
+KPI tiles with full-bleed sparkline backgrounds, and (2) an inline mini history-bar on every list
+row showing that workflow's recent run outcomes. Two adjacent patterns were **deliberately
+rejected**: a DAG/pipeline step visualizer, which reflects Kubernetes multi-worker sharding
+RedLine does not do (one k6/Playwright script runs at a time; a fake pipeline diagram would
+misrepresent the run), and an AI-chat workflow builder, which duplicates governance RedLine
+already has in the reviewer/corroborate gate.
 
 ## Goals
 

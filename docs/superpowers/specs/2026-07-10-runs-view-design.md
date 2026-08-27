@@ -1,13 +1,13 @@
 # Results (Runs) view — design spec
 
-> Date: 2026-07-10 · Status: APPROVED (Anton, 2026-07-10) · Origin: Testkube gap analysis
+> Date: 2026-07-10 · Status: APPROVED (Anton, 2026-07-10) · Origin: platform gap analysis
 > Build note: UI work at implementation time uses the **impeccable** skill, matching the existing two-theme CSS.
 
 ## Context
 
 The dashboard today is a wizard (author + run); after a run completes the operator sees one
 results page and then the outcome is only recoverable by reading `state/run-ledger.jsonl` by
-hand. The Testkube gap analysis (2026-07-10) identified run history / artifacts / trends as the
+hand. The platform gap analysis (2026-07-10) identified run history / artifacts / trends as the
 one platform capability worth adopting. Product decision: **no Grafana dependency** — the
 dashboard renders everything from the ledger and `reports/`; OTLP→Grafana export stays an
 optional enterprise add-on.
@@ -123,7 +123,7 @@ non-corroborated red line) and asserts: normalization output, filter behavior, 4
 traversal attempt, graceful handling of a malformed line. UI verified by driving the live
 dashboard; impeccable critique pass on the new section before done.
 
-## Testkube dashboard coverage after this build
+## Platform coverage after this build
 
 In: execution history + filters, run drill-down (failures/logs/artifacts), health trends,
 flake surfacing (annotation level), effective re-run (via wizard operate path).

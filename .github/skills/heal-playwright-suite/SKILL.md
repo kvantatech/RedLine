@@ -6,7 +6,7 @@
 **Model-call justification (hard rule 4):** classifying a corroborated failure as test-bug vs
 product-bug and rewriting a locator against the live DOM is open-ended judgment on unbounded
 page structure — the same justification `verify-playwright-suite` carries at authoring time.
-This skill extends that earned call to the proven tier, where Mabl-class competitors run
+This skill extends that earned call to the proven tier, where commercial QA platforms run
 auto-healing continuously; without it a renamed button files a product-regression Jira.
 
 ---
