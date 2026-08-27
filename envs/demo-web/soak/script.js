@@ -5,13 +5,23 @@
  * Trigger:     On-demand only (never in CI)
  * Environment: Staging only — never run against prod
  *
- * Shape: ramp to 8 VUs (80% of load target), sustain for 2 hours
+ * Shape: ramp to 8 iterations/sec (80% of load target), sustain for 2 hours
  * Catches memory leaks, connection pool exhaustion, time-dependent bugs.
  *
  * Default duration: 2h. Override with SOAK_DURATION env var (e.g. 30m for a quick check).
  *
  * Baseline: baselines/demo-web.soak.json
  * Gate:     envs/demo-web/soak/perf-gate.yaml  (report-only, never enforce in CI)
+ *
+ * Open model: stage targets are ARRIVAL RATE (iterations/sec), not concurrent VUs.
+ * Under a closed model (ramping-vus) the applied load falls as the system slows --
+ * the test eases off exactly when it should be pushing hardest, so a degrading
+ * system is measured more gently than a healthy one. Here VUs are a resource k6
+ * allocates to sustain the rate, not the load itself.
+ *
+ * NOTE: rates carried over from the previous VU targets and NOT yet calibrated.
+ * Derive them from the api-benchmark profile's measured service time --
+ * sustainable rate ~= concurrency / iteration duration (Little's Law).
  */
 
 import http from "k6/http";
@@ -39,9 +49,11 @@ const AUTHENTICATE_URL = `${LOGIN_URL}/authenticate`;
 export const options = {
   scenarios: {
     "soak": {
-      executor: "ramping-vus",
+      executor: "ramping-arrival-rate",
+      startRate: 0, timeUnit: "1s",
+      preAllocatedVUs: 30, maxVUs: 100,
       stages: [
-        { duration: "5m",          target: 8 },   // ramp to 80% of load target
+        { duration: "5m",          target: 8 },   // ramp to 8 iterations/sec (80% of load target)
         { duration: SOAK_DURATION, target: 8 },   // sustain — watch for degradation
         { duration: "5m",          target: 0 },   // ramp down
       ],

@@ -5,11 +5,21 @@
  * Trigger:     On-demand only (never in CI)
  * Environment: Staging only — never run against prod
  *
- * Shape: ramp from expected load (10 VUs) up to 3× (30 VUs) in steps until errors
+ * Shape: ramp from expected arrival rate (10/sec) up to 4× (40/sec) in steps until errors
  * or latency degrades. Goal: find the ceiling and failure modes.
  *
  * Baseline: baselines/demo-web.stress.json
  * Gate:     envs/demo-web/stress/perf-gate.yaml  (report-only, never enforce in CI)
+ *
+ * Open model: stage targets are ARRIVAL RATE (iterations/sec), not concurrent VUs.
+ * Under a closed model (ramping-vus) the applied load falls as the system slows --
+ * the test eases off exactly when it should be pushing hardest, so a degrading
+ * system is measured more gently than a healthy one. Here VUs are a resource k6
+ * allocates to sustain the rate, not the load itself.
+ *
+ * NOTE: rates carried over from the previous VU targets and NOT yet calibrated.
+ * Derive them from the api-benchmark profile's measured service time --
+ * sustainable rate ~= concurrency / iteration duration (Little's Law).
  */
 
 import http from "k6/http";
@@ -36,12 +46,14 @@ const AUTHENTICATE_URL = `${LOGIN_URL}/authenticate`;
 export const options = {
   scenarios: {
     "stress": {
-      executor: "ramping-vus",
+      executor: "ramping-arrival-rate",
+      startRate: 10, timeUnit: "1s",
+      preAllocatedVUs: 80, maxVUs: 300,
       stages: [
-        { duration: "3m", target: 10 },   // start at expected load
+        { duration: "3m", target: 10 },   // expected arrival rate
         { duration: "3m", target: 20 },   // 2× expected
         { duration: "3m", target: 30 },   // 3× expected — looking for the ceiling
-        { duration: "3m", target: 40 },   // 4× — beyond ceiling; observe failure mode
+        { duration: "3m", target: 40 },   // 4× — rate holds even as latency climbs
         { duration: "5m", target: 0  },   // recovery
       ],
     },
